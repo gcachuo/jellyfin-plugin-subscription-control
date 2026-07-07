@@ -1,48 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>EasyMovie Subscription</title>
 </head>
 <body>
-<div class="content-primary">
-    <h1>EasyMovie Subscription</h1>
-    <form id="easymovieConfigForm">
-        <div class="inputContainer">
-            <label class="inputLabel" for="apiUrl">API URL</label>
-            <input type="text" id="apiUrl" class="emby-input" />
+    <div id="easymovieConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="easymovieConfigForm">
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="apiUrl">API URL</label>
+                        <input type="text" id="apiUrl" is="emby-input" />
+                        <div class="fieldDescription">URL del endpoint de suscripciones de EasyMovie</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="expiringThresholdDays">Dias para expirar</label>
+                        <input type="number" id="expiringThresholdDays" is="emby-input" />
+                        <div class="fieldDescription">Dias antes de expiracion para mostrar estado "expiring"</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="trialMaxDurationDays">Maximo dias de prueba</label>
+                        <input type="number" id="trialMaxDurationDays" is="emby-input" />
+                        <div class="fieldDescription">Dias maximos para considerar una suscripcion como trial</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="cacheDurationMinutes">Cache (minutos)</label>
+                        <input type="number" id="cacheDurationMinutes" is="emby-input" />
+                        <div class="fieldDescription">Duracion del cache de estado de suscripcion</div>
+                    </div>
+                    <h2>Videos de Preroll</h2>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="videoActive">Video activo (ruta)</label>
+                        <input type="text" id="videoActive" is="emby-input" />
+                        <div class="fieldDescription">Ruta absoluta al video para usuarios activos</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="videoExpiring">Video expiring/prueba (ruta)</label>
+                        <input type="text" id="videoExpiring" is="emby-input" />
+                        <div class="fieldDescription">Ruta absoluta al video para usuarios expirando o en trial</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="videoExpired">Video vencido (ruta)</label>
+                        <input type="text" id="videoExpired" is="emby-input" />
+                        <div class="fieldDescription">Ruta absoluta al video para usuarios vencidos (reemplaza todo el contenido)</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="videoCourtesy">Video cortesia (ruta)</label>
+                        <input type="text" id="videoCourtesy" is="emby-input" />
+                        <div class="fieldDescription">Ruta absoluta al video para usuarios con acceso de cortesia</div>
+                    </div>
+                    <div class="inputContainer">
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="expiringThresholdDays">Dias para expirar</label>
-            <input type="number" id="expiringThresholdDays" class="emby-input" />
-        </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="trialMaxDurationDays">Maximo dias de prueba</label>
-            <input type="number" id="trialMaxDurationDays" class="emby-input" />
-        </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="cacheDurationMinutes">Cache (minutos)</label>
-            <input type="number" id="cacheDurationMinutes" class="emby-input" />
-        </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="videoActive">Video activo (ruta)</label>
-            <input type="text" id="videoActive" class="emby-input" />
-        </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="videoExpiring">Video expiring/prueba (ruta)</label>
-            <input type="text" id="videoExpiring" class="emby-input" />
-        </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="videoExpired">Video vencido (ruta)</label>
-            <input type="text" id="videoExpired" class="emby-input" />
-        </div>
-        <div class="inputContainer">
-            <label class="inputLabel" for="videoCourtesy">Video cortesia (ruta)</label>
-            <input type="text" id="videoCourtesy" class="emby-input" />
-        </div>
-        <button type="submit" class="emby-button">Guardar</button>
-    </form>
-</div>
+    </div>
 <script>
     (function () {
         const pluginId = 'a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a';
