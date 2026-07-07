@@ -1,14 +1,15 @@
 {
+  "category": "General",
+  "changelog": "✨ Initial Release\r\n\r\n- Subscription status integration with EasyMovie API\r\n- Preroll video injection based on subscription state\r\n- Content blocking for expired subscriptions\r\n- Trial user detection and handling\r\n- Fail-safe mode (defaults to active on API errors)",
+  "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
-  "description": "Controls media access based on user subscription status. Displays subscription-specific preroll videos before content and blocks playback for expired subscriptions.",
-  "overview": "Subscription-based content access control with preroll videos",
   "owner": "gcachuo",
-  "category": "General",
+  "targetAbi": "10.11.6.0",
+  "timestamp": "2026-07-07T22:03:00.0000000Z",
   "version": "1.0.0.0",
-  "changelog": "Initial release with subscription status integration, preroll injection, and content blocking for expired users.",
-  "targetAbi": "10.11.0.0",
-  "timestamp": "2026-07-07T21:55:00Z",
-  "sourceUrl": "https://github.com/gcachuo/EasyMovie-Plugin",
-  "imageUrl": "https://easymovie.lat/logo.png"
+  "status": "Active",
+  "autoUpdate": false,
+  "imagePath": "D:\\jellyfin\\plugins\\EasyMovie_1.0.0.0\\logo.png",
+  "assemblies": []
 }
