@@ -1,0 +1,12 @@
+{
+  "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
+  "name": "EasyMovie Subscription",
+  "description": "Controls media access based on user subscription status. Displays subscription-specific preroll videos before content and blocks playback for expired subscriptions.",
+  "overview": "Subscription-based content access control with preroll videos",
+  "owner": "EasyMovie",
+  "category": "General",
+  "version": "1.0.0.0",
+  "changelog": "Initial release with subscription status integration, preroll injection, and content blocking for expired users.",
+  "targetAbi": "10.11.0.0",
+  "timestamp": "2026-07-07T21:55:00Z"
+}
