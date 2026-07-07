@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="1.0.0.0"
+VERSION="1.0.1.0"
 BUILD_DIR="EasyMovie.Plugin/bin/Release/net9.0"
 PACKAGE_NAME="EasyMovie.Plugin-${VERSION}.zip"
 
@@ -13,16 +13,13 @@ if [ ! -d "$BUILD_DIR" ]; then
 fi
 
 # Crear el ZIP con los archivos necesarios
-cd "$BUILD_DIR" || exit 1
-zip -j "../../../../../${PACKAGE_NAME}" \
-    EasyMovie.Plugin.dll \
-    meta.json \
-    logo.png
-
-cd - > /dev/null || exit 1
+zip -j "${PACKAGE_NAME}" \
+    "${BUILD_DIR}/EasyMovie.Plugin.dll" \
+    "${BUILD_DIR}/meta.json" \
+    "${BUILD_DIR}/logo.png"
 
 # Calcular checksum MD5
-CHECKSUM=$(md5sum "$PACKAGE_NAME" | awk '{print toupper($1)}')
+CHECKSUM=$(md5sum "${PACKAGE_NAME}" | awk '{print toupper($1)}')
 
 echo ""
 echo "✅ Package created: ${PACKAGE_NAME}"

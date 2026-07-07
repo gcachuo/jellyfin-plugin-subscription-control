@@ -27,8 +27,9 @@ public class Plugin : BasePlugin<Configuration.PluginConfiguration>, IHasWebPage
     {
         yield return new PluginPageInfo
         {
-            Name = Name,
-            EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html"
+            Name = "EasyMovie Subscription",
+            EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html",
+            EnableInMainMenu = false
         };
     }
 }

@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/EasyMovie-Plugin",
     "versions": [
       {
+        "timestamp": "2026-07-07T23:50:00.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "CBAC311BF1791C50AC344844F288B07D",
+        "version": "1.0.1.0",
+        "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed configuration page not appearing\r\n- Improved plugin page registration",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.1/EasyMovie.Plugin-1.0.1.0.zip"
+      },
+      {
         "timestamp": "2026-07-07T22:19:00.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "A687B1AC0DD2B0228D56776913416DD0",
