@@ -3,10 +3,12 @@
   "name": "EasyMovie Subscription",
   "description": "Controls media access based on user subscription status. Displays subscription-specific preroll videos before content and blocks playback for expired subscriptions.",
   "overview": "Subscription-based content access control with preroll videos",
-  "owner": "EasyMovie",
+  "owner": "gcachuo",
   "category": "General",
   "version": "1.0.0.0",
   "changelog": "Initial release with subscription status integration, preroll injection, and content blocking for expired users.",
   "targetAbi": "10.11.0.0",
-  "timestamp": "2026-07-07T21:55:00Z"
+  "timestamp": "2026-07-07T21:55:00Z",
+  "sourceUrl": "https://github.com/gcachuo/EasyMovie-Plugin",
+  "imageUrl": "https://easymovie.lat/logo.png"
 }
