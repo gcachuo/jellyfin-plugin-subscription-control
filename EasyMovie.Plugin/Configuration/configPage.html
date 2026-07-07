@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>EasyMovie Subscription</title>
+</head>
+<body>
+<div class="content-primary">
+    <h1>EasyMovie Subscription</h1>
+    <form id="easymovieConfigForm">
+        <div class="inputContainer">
+            <label class="inputLabel" for="apiUrl">API URL</label>
+            <input type="text" id="apiUrl" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="expiringThresholdDays">Dias para expirar</label>
+            <input type="number" id="expiringThresholdDays" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="trialMaxDurationDays">Maximo dias de prueba</label>
+            <input type="number" id="trialMaxDurationDays" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="cacheDurationMinutes">Cache (minutos)</label>
+            <input type="number" id="cacheDurationMinutes" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="videoActive">Video activo (ruta)</label>
+            <input type="text" id="videoActive" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="videoExpiring">Video expiring/prueba (ruta)</label>
+            <input type="text" id="videoExpiring" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="videoExpired">Video vencido (ruta)</label>
+            <input type="text" id="videoExpired" class="emby-input" />
+        </div>
+        <div class="inputContainer">
+            <label class="inputLabel" for="videoCourtesy">Video cortesia (ruta)</label>
+            <input type="text" id="videoCourtesy" class="emby-input" />
+        </div>
+        <button type="submit" class="emby-button">Guardar</button>
+    </form>
+</div>
+<script>
+    (function () {
+        const pluginId = 'a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a';
+        const form = document.getElementById('easymovieConfigForm');
+
+        function loadConfig() {
+            return ApiClient.getPluginConfiguration(pluginId).then(config => {
+                document.getElementById('apiUrl').value = config.ApiUrl || '';
+                document.getElementById('expiringThresholdDays').value = config.ExpiringThresholdDays ?? 7;
+                document.getElementById('trialMaxDurationDays').value = config.TrialMaxDurationDays ?? 14;
+                document.getElementById('cacheDurationMinutes').value = config.CacheDurationMinutes ?? 10;
+                document.getElementById('videoActive').value = config.Videos?.Active || '';
+                document.getElementById('videoExpiring').value = config.Videos?.Expiring || '';
+                document.getElementById('videoExpired').value = config.Videos?.Expired || '';
+                document.getElementById('videoCourtesy').value = config.Videos?.Courtesy || '';
+            });
+        }
+
+        function saveConfig(event) {
+            event.preventDefault();
+            ApiClient.getPluginConfiguration(pluginId).then(config => {
+                config.ApiUrl = document.getElementById('apiUrl').value.trim();
+                config.ExpiringThresholdDays = parseInt(document.getElementById('expiringThresholdDays').value, 10) || 0;
+                config.TrialMaxDurationDays = parseInt(document.getElementById('trialMaxDurationDays').value, 10) || 0;
+                config.CacheDurationMinutes = parseInt(document.getElementById('cacheDurationMinutes').value, 10) || 0;
+                config.Videos = config.Videos || {};
+                config.Videos.Active = document.getElementById('videoActive').value.trim();
+                config.Videos.Expiring = document.getElementById('videoExpiring').value.trim();
+                config.Videos.Expired = document.getElementById('videoExpired').value.trim();
+                config.Videos.Courtesy = document.getElementById('videoCourtesy').value.trim();
+                return ApiClient.updatePluginConfiguration(pluginId, config);
+            }).then(() => {
+                Dashboard.alert('Configuracion guardada.');
+            });
+        }
+
+        form.addEventListener('submit', saveConfig);
+        loadConfig();
+    })();
+</script>
+</body>
+</html>
