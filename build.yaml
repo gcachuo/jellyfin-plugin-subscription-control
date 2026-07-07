@@ -1,0 +1,21 @@
+name: 'EasyMovie Subscription'
+guid: 'a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a'
+version: '1.0.0.0'
+targetAbi: '10.11.0.0'
+framework: 'net9.0'
+owner: 'EasyMovie'
+overview: 'Subscription-based content access control with preroll videos'
+description: >
+  Controls media access based on user subscription status. Displays subscription-specific preroll videos before content and blocks playback for expired subscriptions. Integrates with EasyMovie subscription API to check user status (active, expiring, expired, courtesy, trial) and injects appropriate preroll videos or replacement content.
+
+category: 'General'
+artifacts:
+  - 'EasyMovie.Plugin.dll'
+changelog: |-
+  ## 1.0.0
+  - Initial release
+  - Subscription status integration with EasyMovie API
+  - Preroll video injection based on subscription state
+  - Content blocking for expired subscriptions
+  - Trial user detection and handling
+  - Fail-safe mode (defaults to active on API errors)
