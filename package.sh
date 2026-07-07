@@ -14,13 +14,12 @@ fi
 
 # Crear el ZIP con los archivos necesarios
 cd "$BUILD_DIR" || exit 1
-zip -r "../../../../../${PACKAGE_NAME}" \
+zip -j "../../../../../${PACKAGE_NAME}" \
     EasyMovie.Plugin.dll \
     meta.json \
-    logo.png \
-    -x "*.pdb" "*.deps.json" "*.xml"
+    logo.png
 
-cd - > /dev/null
+cd - > /dev/null || exit 1
 
 # Calcular checksum MD5
 CHECKSUM=$(md5sum "$PACKAGE_NAME" | awk '{print toupper($1)}')
@@ -31,6 +30,7 @@ echo "📊 MD5 Checksum: ${CHECKSUM}"
 echo ""
 echo "Next steps:"
 echo "1. Create a GitHub release v${VERSION}"
-echo "2. Upload ${PACKAGE_NAME} to the release"
-echo "3. Update manifest.json with checksum: ${CHECKSUM}"
-echo "4. Commit and push manifest.json"
+echo "   gh release create v${VERSION} ${PACKAGE_NAME} --title \"v${VERSION}\" --notes \"Release notes\""
+echo "2. Update manifest.json with checksum: ${CHECKSUM}"
+echo "3. Commit and push manifest.json"
+echo "   git add manifest.json && git commit -m \"Update manifest for v${VERSION}\" && git push"
