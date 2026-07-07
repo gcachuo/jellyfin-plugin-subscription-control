@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Configuration;
-using Jellyfin.Data.Entities;
+using Jellyfin.Database.Implementations.Entities;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using Microsoft.Extensions.Logging;

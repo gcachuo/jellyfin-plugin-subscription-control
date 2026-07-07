@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Configuration;
-using Jellyfin.Data.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Session;
 using MediaBrowser.Model.Session;

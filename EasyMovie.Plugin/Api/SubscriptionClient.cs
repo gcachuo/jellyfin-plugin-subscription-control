@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Configuration;
 using EasyMovie.Plugin.Models;
-using Jellyfin.Data.Entities;
+using Jellyfin.Database.Implementations.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
