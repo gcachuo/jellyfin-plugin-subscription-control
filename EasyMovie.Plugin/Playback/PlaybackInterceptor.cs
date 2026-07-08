@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Configuration;
+using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Session;
 using MediaBrowser.Model.Session;
@@ -29,6 +31,38 @@ public sealed class PlaybackInterceptor : IHostedService, IDisposable
         _libraryManager = libraryManager;
         _subscriptionClient = subscriptionClient;
         _logger = logger;
+    }
+
+    private BaseItem? GetOrCreateLibraryItem(string path)
+    {
+        var existing = _libraryManager.FindByPath(path, isFolder: false);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        try
+        {
+            var video = new Video
+            {
+                Id = Guid.NewGuid(),
+                Path = path,
+                Name = Path.GetFileNameWithoutExtension(path),
+                ProviderIds = new Dictionary<string, string>
+                {
+                    { "easymovie.preroll", path }
+                }
+            };
+
+            _libraryManager.CreateItem(video, null);
+            _logger.LogInformation("Indexed expired video in Jellyfin library: {Path}", path);
+            return video;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to index expired video in Jellyfin library: {Path}", path);
+            return null;
+        }
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -81,7 +115,7 @@ public sealed class PlaybackInterceptor : IHostedService, IDisposable
             return;
         }
 
-        var expiredItem = _libraryManager.FindByPath(expiredPath, isFolder: false);
+        var expiredItem = GetOrCreateLibraryItem(expiredPath);
         if (expiredItem is null)
         {
             _logger.LogWarning("Expired video is not indexed in Jellyfin library: {Path}", expiredPath);

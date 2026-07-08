@@ -48,7 +48,7 @@ public sealed class SubscriptionClient
 
         try
         {
-            var url = BuildUrl(config, user.Id.ToString("N"));
+            var url = BuildUrl(config, user.Id.ToString("N"), user.Username);
             using var response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
@@ -81,10 +81,15 @@ public sealed class SubscriptionClient
         }
     }
 
-    private static string BuildUrl(PluginConfiguration config, string userId)
+    private static string BuildUrl(PluginConfiguration config, string userId, string? username)
     {
         var separator = config.ApiUrl.Contains("?") ? "&" : "?";
-        return $"{config.ApiUrl}{separator}userId={Uri.EscapeDataString(userId)}&expiringDays={config.ExpiringThresholdDays}&trialMaxDays={config.TrialMaxDurationDays}&cacheMinutes={config.CacheDurationMinutes}";
+        var url = $"{config.ApiUrl}{separator}userId={Uri.EscapeDataString(userId)}&expiringDays={config.ExpiringThresholdDays}&trialMaxDays={config.TrialMaxDurationDays}&cacheMinutes={config.CacheDurationMinutes}";
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            url += $"&username={Uri.EscapeDataString(username)}";
+        }
+        return url;
     }
 
     private static SubscriptionStatus CreateFailSafe(string message) => new()
