@@ -64,6 +64,7 @@
                             <tr>
                                 <th class="detailTableHeaderCell">Email</th>
                                 <th class="detailTableHeaderCell">Estatus</th>
+                                <th class="detailTableHeaderCell">Plan</th>
                                 <th class="detailTableHeaderCell">Expira</th>
                             </tr>
                         </thead>
@@ -104,7 +105,7 @@
             if (!rows || rows.length === 0) {
                 const emptyRow = document.createElement('tr');
                 const emptyCell = document.createElement('td');
-                emptyCell.colSpan = 3;
+                emptyCell.colSpan = 4;
                 emptyCell.textContent = 'No hay usuarios con estatus.';
                 emptyRow.appendChild(emptyCell);
                 tbody.appendChild(emptyRow);
@@ -117,12 +118,31 @@
                 expiring: 2,
                 expired: 3
             };
-            const getStatusValue = row => (row.status ?? row.Status ?? '').toString().toLowerCase();
+            const getStatusValue = row => {
+                const raw = (row.status ?? row.Status ?? row.estado ?? row.Estado ?? '').toString().toLowerCase();
+                if (raw === 'activo') return 'active';
+                if (raw === 'inactivo') return 'expired';
+                return raw;
+            };
             const getStatusRank = row => statusOrder[getStatusValue(row)] ?? 99;
-            const getEmailValue = row => row.email ?? row.Email ?? row.username ?? row.Username ?? '-';
-            const getExpirationValue = row => row.expirationDate ?? row.ExpirationDate ?? '';
+            const getEmailValue = row => {
+                const rawEmail = row.email ?? row.Email ?? '';
+                const normalizedEmail = rawEmail.toString().trim();
+                if (normalizedEmail && normalizedEmail !== '-' && normalizedEmail.toLowerCase() !== 'n/a') {
+                    return normalizedEmail;
+                }
+                return row.nombre ?? row.Nombre ?? row.username ?? row.Username ?? '-';
+            };
+            const getExpirationValue = row => row.expirationDate
+                ?? row.ExpirationDate
+                ?? row.fecha
+                ?? row.Fecha
+                ?? '';
+            const getExpirationSortValue = row => row.fechaDate
+                ?? row.FechaDate
+                ?? getExpirationValue(row);
             const getExpirationTime = row => {
-                const value = getExpirationValue(row);
+                const value = getExpirationSortValue(row);
                 const parsed = Date.parse(value);
                 return Number.isNaN(parsed) ? null : parsed;
             };
@@ -148,13 +168,15 @@
 
             sortedRows.forEach(row => {
                 const email = getEmailValue(row);
-                const status = row.status ?? row.Status ?? '-';
+                const status = row.status ?? row.Status ?? row.estado ?? row.Estado ?? '-';
+                const plan = row.plan ?? row.Plan ?? 'Sin plan';
                 const expirationDate = getExpirationValue(row) || '-';
 
                 const tr = document.createElement('tr');
                 const cells = [
                     email,
                     status,
+                    plan,
                     expirationDate
                 ];
 
@@ -169,7 +191,7 @@
         }
 
         function loadStatusList() {
-            const url = ApiClient.getUrl('EasyMovieSubscription/Status');
+            const url = ApiClient.getUrl('EasyMovieSubscription/Clientes');
             return ApiClient.ajax({
                 type: 'GET',
                 url,
