@@ -186,6 +186,21 @@
                 });
             };
 
+            const getLastActiveValue = row => row.fechaActivo ?? row.FechaActivo ?? null;
+            const getLastActiveTime = row => {
+                const value = getLastActiveValue(row);
+                if (value === null || value === undefined || value === '') {
+                    return null;
+                }
+                const parsedValue = typeof value === 'number'
+                    ? value
+                    : Number.parseInt(value.toString(), 10);
+                if (Number.isNaN(parsedValue) || parsedValue <= 0) {
+                    return null;
+                }
+                return parsedValue;
+            };
+
             const sortedRows = [...rows].sort((left, right) => {
                 const rankLeft = getStatusRank(left);
                 const rankRight = getStatusRank(right);
@@ -199,6 +214,14 @@
                     if (leftTime == null) return 1;
                     if (rightTime == null) return -1;
                     return leftTime - rightTime;
+                }
+
+                const leftActive = getLastActiveTime(left);
+                const rightActive = getLastActiveTime(right);
+                if (leftActive !== rightActive) {
+                    if (leftActive == null) return 1;
+                    if (rightActive == null) return -1;
+                    return rightActive - leftActive;
                 }
 
                 return getEmailValue(left).toString().toLowerCase()
