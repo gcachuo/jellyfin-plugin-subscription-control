@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-08T09:22:53.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "EBAC7667AE9196AB9031CA467DED3A6D",
+        "version": "1.0.8.0",
+        "changelog": "🔄 Changes\r\n\r\n- Corregido LiveTV policy sync y pruebas de expirados",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.8/EasyMovie.Plugin-1.0.8.0.zip"
+      },
+      {
         "timestamp": "2026-07-08T08:52:09.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "FE58278653313CFCEF419DAD7B8DD68F",
