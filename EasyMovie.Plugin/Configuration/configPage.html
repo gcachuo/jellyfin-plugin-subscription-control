@@ -51,20 +51,21 @@
                         <div class="fieldDescription">Ruta absoluta al video para usuarios con acceso de cortesia</div>
                     </div>
                     <div class="inputContainer">
-                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                        <button id="saveConfigButton" is="emby-button" type="submit" class="raised button-submit block emby-button">
                             <span>Guardar</span>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-<script>
+        <script type="text/javascript">
     (function () {
         const pluginId = 'a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a';
         const form = document.getElementById('easymovieConfigForm');
 
         function loadConfig() {
+            Dashboard.showLoadingMsg();
+
             return ApiClient.getPluginConfiguration(pluginId).then(config => {
                 document.getElementById('apiUrl').value = config.ApiUrl || '';
                 document.getElementById('expiringThresholdDays').value = config.ExpiringThresholdDays ?? 7;
@@ -74,20 +75,27 @@
                 document.getElementById('videoExpiring').value = config.Videos?.Expiring || '';
                 document.getElementById('videoExpired').value = config.Videos?.Expired || '';
                 document.getElementById('videoCourtesy').value = config.Videos?.Courtesy || '';
+                Dashboard.hideLoadingMsg();
+            }).catch(err => {
+                Dashboard.hideLoadingMsg();
+                alert('Error al cargar configuración: ' + err);
+                console.error('Load error:', err);
             });
         }
 
         function saveConfig(event) {
-            event.preventDefault();
-            
+            if (event) {
+                event.preventDefault();
+            }
+
             Dashboard.showLoadingMsg();
-            
+
             ApiClient.getPluginConfiguration(pluginId).then(config => {
                 config.ApiUrl = document.getElementById('apiUrl').value.trim();
                 config.ExpiringThresholdDays = parseInt(document.getElementById('expiringThresholdDays').value, 10) || 7;
                 config.TrialMaxDurationDays = parseInt(document.getElementById('trialMaxDurationDays').value, 10) || 14;
                 config.CacheDurationMinutes = parseInt(document.getElementById('cacheDurationMinutes').value, 10) || 10;
-                
+
                 if (!config.Videos) {
                     config.Videos = {};
                 }
@@ -95,27 +103,24 @@
                 config.Videos.Expiring = document.getElementById('videoExpiring').value.trim();
                 config.Videos.Expired = document.getElementById('videoExpired').value.trim();
                 config.Videos.Courtesy = document.getElementById('videoCourtesy').value.trim();
-                
+
                 return ApiClient.updatePluginConfiguration(pluginId, config);
-            }).then(() => {
-                Dashboard.hideLoadingMsg();
-                require(['toast'], function(toast) {
-                    toast('Configuracion guardada correctamente');
-                });
+            }).then(result => {
+                Dashboard.processPluginConfigurationUpdateResult(result);
             }).catch(err => {
                 Dashboard.hideLoadingMsg();
-                require(['toast'], function(toast) {
-                    toast('Error al guardar: ' + err);
-                });
+                alert('Error al guardar: ' + err);
                 console.error('Save error:', err);
             });
-            
+
             return false;
         }
 
+        document.querySelector('#easymovieConfigPage')
+            .addEventListener('pageshow', loadConfig);
         form.addEventListener('submit', saveConfig);
-        loadConfig();
     })();
-</script>
+        </script>
+    </div>
 </body>
 </html>
