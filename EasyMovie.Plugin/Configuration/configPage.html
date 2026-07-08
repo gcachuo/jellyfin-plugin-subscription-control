@@ -65,8 +65,6 @@
                                 <th class="detailTableHeaderCell">Email</th>
                                 <th class="detailTableHeaderCell">Estatus</th>
                                 <th class="detailTableHeaderCell">Expira</th>
-                                <th class="detailTableHeaderCell">Trial</th>
-                                <th class="detailTableHeaderCell">Cache</th>
                             </tr>
                         </thead>
                         <tbody id="statusTableBody"></tbody>
@@ -106,7 +104,7 @@
             if (!rows || rows.length === 0) {
                 const emptyRow = document.createElement('tr');
                 const emptyCell = document.createElement('td');
-                emptyCell.colSpan = 5;
+                emptyCell.colSpan = 3;
                 emptyCell.textContent = 'No hay usuarios con estatus.';
                 emptyRow.appendChild(emptyCell);
                 tbody.appendChild(emptyRow);
@@ -122,12 +120,26 @@
             const getStatusValue = row => (row.status ?? row.Status ?? '').toString().toLowerCase();
             const getStatusRank = row => statusOrder[getStatusValue(row)] ?? 99;
             const getEmailValue = row => row.email ?? row.Email ?? row.username ?? row.Username ?? '-';
+            const getExpirationValue = row => row.expirationDate ?? row.ExpirationDate ?? '';
+            const getExpirationTime = row => {
+                const value = getExpirationValue(row);
+                const parsed = Date.parse(value);
+                return Number.isNaN(parsed) ? null : parsed;
+            };
 
             const sortedRows = [...rows].sort((left, right) => {
                 const rankLeft = getStatusRank(left);
                 const rankRight = getStatusRank(right);
                 if (rankLeft !== rankRight) {
                     return rankLeft - rankRight;
+                }
+
+                const leftTime = getExpirationTime(left);
+                const rightTime = getExpirationTime(right);
+                if (leftTime !== rightTime) {
+                    if (leftTime == null) return 1;
+                    if (rightTime == null) return -1;
+                    return leftTime - rightTime;
                 }
 
                 return getEmailValue(left).toString().toLowerCase()
@@ -137,17 +149,13 @@
             sortedRows.forEach(row => {
                 const email = getEmailValue(row);
                 const status = row.status ?? row.Status ?? '-';
-                const expirationDate = row.expirationDate ?? row.ExpirationDate ?? '-';
-                const isTrial = row.isTrial ?? row.IsTrial ?? false;
-                const cached = row.cached ?? row.Cached ?? false;
+                const expirationDate = getExpirationValue(row) || '-';
 
                 const tr = document.createElement('tr');
                 const cells = [
                     email,
                     status,
-                    expirationDate,
-                    isTrial ? 'Sí' : 'No',
-                    cached ? 'Sí' : 'No'
+                    expirationDate
                 ];
 
                 cells.forEach(value => {
