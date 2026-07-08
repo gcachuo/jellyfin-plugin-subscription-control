@@ -66,6 +66,7 @@
                                 <th class="detailTableHeaderCell">Estatus</th>
                                 <th class="detailTableHeaderCell">Plan</th>
                                 <th class="detailTableHeaderCell">Expira</th>
+                                <th class="detailTableHeaderCell">Última vez activo</th>
                             </tr>
                         </thead>
                         <tbody id="statusTableBody"></tbody>
@@ -105,7 +106,7 @@
             if (!rows || rows.length === 0) {
                 const emptyRow = document.createElement('tr');
                 const emptyCell = document.createElement('td');
-                emptyCell.colSpan = 4;
+                emptyCell.colSpan = 5;
                 emptyCell.textContent = 'No hay usuarios con estatus.';
                 emptyRow.appendChild(emptyCell);
                 tbody.appendChild(emptyRow);
@@ -146,6 +147,44 @@
                 const parsed = Date.parse(value);
                 return Number.isNaN(parsed) ? null : parsed;
             };
+            const formatExpirationDisplay = value => {
+                if (!value) {
+                    return 'N/A';
+                }
+                const trimmed = value.toString().trim();
+                if (!trimmed || trimmed === '-' || trimmed.toLowerCase() === 'n/a') {
+                    return 'N/A';
+                }
+                const parsed = Date.parse(trimmed);
+                if (Number.isNaN(parsed)) {
+                    return trimmed;
+                }
+                return new Date(parsed).toLocaleDateString('es-MX', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            };
+            const formatLastActiveDisplay = value => {
+                if (value === null || value === undefined || value === '') {
+                    return 'N/A';
+                }
+                const parsedValue = typeof value === 'number'
+                    ? value
+                    : Number.parseInt(value.toString(), 10);
+                if (Number.isNaN(parsedValue) || parsedValue <= 0) {
+                    return 'N/A';
+                }
+                const date = new Date(parsedValue * 1000);
+                if (Number.isNaN(date.getTime())) {
+                    return 'N/A';
+                }
+                return date.toLocaleDateString('es-MX', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            };
 
             const sortedRows = [...rows].sort((left, right) => {
                 const rankLeft = getStatusRank(left);
@@ -171,13 +210,17 @@
                 const status = row.status ?? row.Status ?? row.estado ?? row.Estado ?? '-';
                 const plan = row.plan ?? row.Plan ?? 'Sin plan';
                 const expirationDate = getExpirationValue(row) || '-';
+                const expirationDisplay = formatExpirationDisplay(expirationDate);
+                const lastActiveValue = row.fechaActivo ?? row.FechaActivo ?? null;
+                const lastActiveDisplay = formatLastActiveDisplay(lastActiveValue);
 
                 const tr = document.createElement('tr');
                 const cells = [
                     email,
                     status,
                     plan,
-                    expirationDate
+                    expirationDisplay,
+                    lastActiveDisplay
                 ];
 
                 cells.forEach(value => {
