@@ -5,8 +5,18 @@
     "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
     "owner": "gcachuo",
     "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/gcachuo/jellyfin-plugin-subscription-control/main/EasyMovie.Plugin/logo.png",
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
+      {
+        "timestamp": "2026-07-08T00:20:00.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "9193708E4F9C1C51EE6FC1A7F833E449",
+        "version": "1.0.4.0",
+        "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed configuration save clearing all fields\r\n- Configuration now reloads properly after save\r\n- Added error handling for save operations",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.4/EasyMovie.Plugin-1.0.4.0.zip"
+      },
       {
         "timestamp": "2026-07-08T00:13:00.000Z",
         "targetAbi": "10.11.6.0",
