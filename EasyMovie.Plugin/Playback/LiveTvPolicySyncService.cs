@@ -125,15 +125,24 @@ public sealed class LiveTvPolicySyncService : BackgroundService
             return false;
         }
 
+        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         var policyType = policy.GetType();
-        var property = policyType.GetProperty("EnableLiveTvAccess", BindingFlags.Instance | BindingFlags.Public)
-            ?? policyType.GetProperty("EnableLiveTv", BindingFlags.Instance | BindingFlags.Public);
-        if (property is null || property.PropertyType != typeof(bool))
+        var property = policyType.GetProperty("EnableLiveTvAccess", flags)
+            ?? policyType.GetProperty("EnableLiveTv", flags)
+            ?? policyType.GetProperty("LiveTvEnabled", flags);
+        if (property is null)
         {
             return false;
         }
 
-        currentValue = (bool) property.GetValue(policy)!;
+        var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+        if (propertyType != typeof(bool))
+        {
+            return false;
+        }
+
+        var current = property.GetValue(policy);
+        currentValue = current is bool currentBool && currentBool;
         property.SetValue(policy, allowLiveTv);
         return true;
     }
@@ -190,8 +199,18 @@ public sealed class LiveTvPolicySyncService : BackgroundService
     private static object? GetUserPolicy(User user)
     {
         var userType = user.GetType();
-        var property = userType.GetProperty("Policy", BindingFlags.Instance | BindingFlags.Public)
-            ?? userType.GetProperty("UserPolicy", BindingFlags.Instance | BindingFlags.Public);
-        return property?.GetValue(user);
+        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var property = userType.GetProperty("Policy", flags)
+            ?? userType.GetProperty("UserPolicy", flags)
+            ?? userType.GetProperty("Permissions", flags);
+        if (property is not null)
+        {
+            return property.GetValue(user);
+        }
+
+        var field = userType.GetField("Policy", flags)
+            ?? userType.GetField("UserPolicy", flags)
+            ?? userType.GetField("Permissions", flags);
+        return field?.GetValue(user);
     }
 }
