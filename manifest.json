@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-08T09:48:13.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "95838177774D18F48B5CDFCFB3120361",
+        "version": "1.0.9.0",
+        "changelog": "🔄 Changes\r\n\r\n- Scheduled task para invalidar cache del plugin y API",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.9/EasyMovie.Plugin-1.0.9.0.zip"
+      },
+      {
         "timestamp": "2026-07-08T09:22:53.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "EBAC7667AE9196AB9031CA467DED3A6D",
