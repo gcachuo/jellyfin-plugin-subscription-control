@@ -224,13 +224,19 @@ public sealed class LiveTvPolicySyncService : BackgroundService
     {
         var managerType = _userManager.GetType();
         var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var candidates = BuildPolicyLookupCandidates(user).ToArray();
+
+        var policyFromUser = await TryGetPolicyFromUserManagerAsync(managerType, flags, candidates).ConfigureAwait(false);
+        if (policyFromUser is not null)
+        {
+            return policyFromUser;
+        }
+
         var methods = managerType.GetMethods(flags)
             .Where(method => method.Name.Contains("Policy", StringComparison.OrdinalIgnoreCase)
                 && method.GetParameters().Length == 1)
             .OrderBy(method => method.Name.Contains("GetUserPolicy", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
             .ToList();
-
-        var candidates = BuildPolicyLookupCandidates(user).ToArray();
         foreach (var method in methods)
         {
             var paramType = method.GetParameters()[0].ParameterType;
@@ -281,6 +287,97 @@ public sealed class LiveTvPolicySyncService : BackgroundService
         }
 
         return null;
+    }
+
+    private async Task<object?> TryGetPolicyFromUserManagerAsync(
+        Type managerType,
+        BindingFlags flags,
+        object?[] candidates)
+    {
+        var userMethods = managerType.GetMethods(flags)
+            .Where(method => method.Name.Contains("GetUserBy", StringComparison.OrdinalIgnoreCase)
+                && method.GetParameters().Length == 1)
+            .OrderBy(method => method.Name.Contains("GetUserById", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+            .ToList();
+
+        foreach (var method in userMethods)
+        {
+            var paramType = method.GetParameters()[0].ParameterType;
+            var argument = candidates.FirstOrDefault(candidate => candidate is not null && paramType.IsInstanceOfType(candidate));
+            if (argument is null)
+            {
+                continue;
+            }
+
+            var result = method.Invoke(_userManager, new[] { argument });
+            var userResult = await UnwrapAsyncResult(result).ConfigureAwait(false);
+            if (userResult is null)
+            {
+                continue;
+            }
+
+            var policy = TryGetPolicyFromUserObject(userResult);
+            if (policy is not null)
+            {
+                return policy;
+            }
+        }
+
+        return null;
+    }
+
+    private static object? TryGetPolicyFromUserObject(object userObject)
+    {
+        var userType = userObject.GetType();
+        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var property = userType.GetProperty("Policy", flags)
+            ?? userType.GetProperty("UserPolicy", flags)
+            ?? userType.GetProperty("Permissions", flags);
+        if (property is not null)
+        {
+            return property.GetValue(userObject);
+        }
+
+        var field = userType.GetField("Policy", flags)
+            ?? userType.GetField("UserPolicy", flags)
+            ?? userType.GetField("Permissions", flags);
+        return field?.GetValue(userObject);
+    }
+
+    private static async Task<object?> UnwrapAsyncResult(object? result)
+    {
+        if (result is null)
+        {
+            return null;
+        }
+
+        if (result is Task task)
+        {
+            await task.ConfigureAwait(false);
+            var resultProperty = task.GetType().GetProperty("Result");
+            return resultProperty?.GetValue(task);
+        }
+
+        if (result is ValueTask valueTask)
+        {
+            await valueTask.ConfigureAwait(false);
+            return null;
+        }
+
+        var resultType = result.GetType();
+        if (resultType.IsValueType && resultType.FullName?.StartsWith("System.Threading.Tasks.ValueTask", StringComparison.Ordinal) == true)
+        {
+            var asTask = resultType.GetMethod("AsTask", BindingFlags.Instance | BindingFlags.Public);
+            if (asTask is not null)
+            {
+                var awaited = (Task)asTask.Invoke(result, null)!;
+                await awaited.ConfigureAwait(false);
+                var resultProperty = awaited.GetType().GetProperty("Result");
+                return resultProperty?.GetValue(awaited);
+            }
+        }
+
+        return result;
     }
 
     private static object?[] BuildPolicyLookupCandidates(User user)
