@@ -17,6 +17,7 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
         services.AddSingleton<SubscriptionClient>();
         services.AddSingleton<IIntroProvider, SubscriptionIntroProvider>();
         services.AddHostedService<PlaybackInterceptor>();
+        services.AddHostedService<LiveTvPolicySyncService>();
         Console.WriteLine("EasyMovie: Plugin services registered successfully");
     }
 }
