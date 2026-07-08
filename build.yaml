@@ -12,6 +12,10 @@ category: 'General'
 artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
+  ## 1.0.6
+  - Fixed configuration save using Dashboard.processPluginConfigurationUpdateResult
+  
+
   ## 1.0.4
   - Fixed configuration save clearing all fields
   - Configuration now reloads properly after save

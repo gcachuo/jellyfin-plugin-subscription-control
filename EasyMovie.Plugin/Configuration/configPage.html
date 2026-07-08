@@ -80,6 +80,8 @@
         function saveConfig(event) {
             event.preventDefault();
             
+            Dashboard.showLoadingMsg();
+            
             ApiClient.getPluginConfiguration(pluginId).then(config => {
                 config.ApiUrl = document.getElementById('apiUrl').value.trim();
                 config.ExpiringThresholdDays = parseInt(document.getElementById('expiringThresholdDays').value, 10) || 7;
@@ -95,12 +97,15 @@
                 config.Videos.Courtesy = document.getElementById('videoCourtesy').value.trim();
                 
                 return ApiClient.updatePluginConfiguration(pluginId, config);
-            }).then(() => {
-                alert('Configuracion guardada correctamente.');
+            }).then(result => {
+                Dashboard.processPluginConfigurationUpdateResult(result);
             }).catch(err => {
+                Dashboard.hideLoadingMsg();
                 alert('Error al guardar: ' + err);
                 console.error('Save error:', err);
             });
+            
+            return false;
         }
 
         form.addEventListener('submit', saveConfig);
