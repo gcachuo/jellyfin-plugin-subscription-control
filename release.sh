@@ -92,22 +92,26 @@ echo "📝 Actualizando manifest.json..."
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
 RELEASE_URL="https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v${VERSION%.*}/EasyMovie.Plugin-${VERSION}.zip"
 
-# Crear entrada de nueva versión
-NEW_VERSION=$(cat <<EOF
+# Escapar el changelog para JSON
+CHANGELOG_JSON=$(echo "$CHANGELOG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+
+# Crear archivo temporal con la nueva entrada
+cat > /tmp/new_version.json <<EOF
       {
         "timestamp": "${TIMESTAMP}",
         "targetAbi": "10.11.6.0",
         "checksum": "${CHECKSUM}",
         "version": "${VERSION}",
-        "changelog": "${CHANGELOG}",
+        "changelog": "🔄 Changes\\r\\n\\r\\n- ${CHANGELOG_JSON}",
         "dependencies": [],
         "sourceUrl": "${RELEASE_URL}"
       },
 EOF
-)
 
-# Insertar nueva versión al inicio del array de versions
-sed -i "0,/\"versions\": \[/s//\"versions\": [\n${NEW_VERSION}/" manifest.json
+# Insertar nueva versión al inicio del array de versions usando awk
+awk '/"versions": \[/ {print; system("cat /tmp/new_version.json"); next}1' manifest.json > /tmp/manifest_new.json
+mv /tmp/manifest_new.json manifest.json
+rm -f /tmp/new_version.json
 
 echo "✅ manifest.json actualizado"
 
