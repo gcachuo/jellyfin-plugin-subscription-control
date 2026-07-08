@@ -97,11 +97,16 @@
                 config.Videos.Courtesy = document.getElementById('videoCourtesy').value.trim();
                 
                 return ApiClient.updatePluginConfiguration(pluginId, config);
-            }).then(result => {
-                Dashboard.processPluginConfigurationUpdateResult(result);
+            }).then(() => {
+                Dashboard.hideLoadingMsg();
+                require(['toast'], function(toast) {
+                    toast('Configuracion guardada correctamente');
+                });
             }).catch(err => {
                 Dashboard.hideLoadingMsg();
-                alert('Error al guardar: ' + err);
+                require(['toast'], function(toast) {
+                    toast('Error al guardar: ' + err);
+                });
                 console.error('Save error:', err);
             });
             
