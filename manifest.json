@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-08T05:10:00.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "59D10807FC8BAB5B93837BB9055F92D1",
+        "version": "1.0.6.0",
+        "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed configuration save using Dashboard.processPluginConfigurationUpdateResult\r\n- Configuration now saves correctly to XML file",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.6/EasyMovie.Plugin-1.0.6.0.zip"
+      },
+      {
         "timestamp": "2026-07-08T05:02:00.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "94F4C89BBB1C948D0BF0B06B93878384",
