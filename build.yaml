@@ -13,6 +13,10 @@ artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
   ## 1.0.8
+  - Scheduled task para invalidar cache del plugin y API
+  
+
+  ## 1.0.8
   - Corregido LiveTV policy sync y pruebas de expirados
   
   ## 1.0.7
