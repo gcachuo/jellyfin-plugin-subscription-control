@@ -79,22 +79,27 @@
 
         function saveConfig(event) {
             event.preventDefault();
+            
             ApiClient.getPluginConfiguration(pluginId).then(config => {
                 config.ApiUrl = document.getElementById('apiUrl').value.trim();
                 config.ExpiringThresholdDays = parseInt(document.getElementById('expiringThresholdDays').value, 10) || 7;
                 config.TrialMaxDurationDays = parseInt(document.getElementById('trialMaxDurationDays').value, 10) || 14;
                 config.CacheDurationMinutes = parseInt(document.getElementById('cacheDurationMinutes').value, 10) || 10;
-                config.Videos = config.Videos || {};
+                
+                if (!config.Videos) {
+                    config.Videos = {};
+                }
                 config.Videos.Active = document.getElementById('videoActive').value.trim();
                 config.Videos.Expiring = document.getElementById('videoExpiring').value.trim();
                 config.Videos.Expired = document.getElementById('videoExpired').value.trim();
                 config.Videos.Courtesy = document.getElementById('videoCourtesy').value.trim();
+                
                 return ApiClient.updatePluginConfiguration(pluginId, config);
             }).then(() => {
-                Dashboard.alert('Configuracion guardada.');
-                return loadConfig();
+                alert('Configuracion guardada correctamente.');
             }).catch(err => {
-                Dashboard.alert('Error al guardar: ' + err);
+                alert('Error al guardar: ' + err);
+                console.error('Save error:', err);
             });
         }
 

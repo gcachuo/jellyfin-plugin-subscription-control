@@ -21,20 +21,23 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
     public SubscriptionIntroProvider(
         SubscriptionClient subscriptionClient,
         ILibraryManager libraryManager,
-        ILogger<SubscriptionIntroProvider> logger)
+        ILoggerFactory loggerFactory)
     {
         _subscriptionClient = subscriptionClient;
         _libraryManager = libraryManager;
-        _logger = logger;
+        _logger = loggerFactory.CreateLogger<SubscriptionIntroProvider>();
     }
 
     public string Name => "EasyMovie Subscription";
 
     public async Task<IEnumerable<IntroInfo>> GetIntros(BaseItem item, User user)
     {
+        _logger.LogInformation("EasyMovie: GetIntros called for item {ItemName} by user {UserName}", item.Name, user.Username);
+        
         var config = Plugin.Instance?.Configuration;
         if (config is null)
         {
+            _logger.LogWarning("EasyMovie: Plugin configuration is null");
             return Enumerable.Empty<IntroInfo>();
         }
 
