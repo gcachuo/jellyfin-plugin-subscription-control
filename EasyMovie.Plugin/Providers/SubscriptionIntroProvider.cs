@@ -81,28 +81,50 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
             return null;
         }
 
-        try
+        var libraryItem = GetOrCreateLibraryItem(path);
+        if (libraryItem is null)
         {
-            var libraryItem = _libraryManager.FindByPath(path, isFolder: false);
-            if (libraryItem is not null)
-            {
-                return new IntroInfo
-                {
-                    Path = libraryItem.Path,
-                    ItemId = libraryItem.Id
-                };
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogDebug(ex, "Failed to resolve intro path {Path}", path);
+            _logger.LogWarning("Intro video is not indexed in Jellyfin library: {Path}", path);
+            return null;
         }
 
         return new IntroInfo
         {
-            Path = path,
-            ItemId = null
+            Path = libraryItem.Path,
+            ItemId = libraryItem.Id
         };
+    }
+
+    private BaseItem? GetOrCreateLibraryItem(string path)
+    {
+        var existing = _libraryManager.FindByPath(path, isFolder: false);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        try
+        {
+            var video = new Video
+            {
+                Id = Guid.NewGuid(),
+                Path = path,
+                Name = Path.GetFileNameWithoutExtension(path),
+                ProviderIds = new Dictionary<string, string>
+                {
+                    { "easymovie.preroll", path }
+                }
+            };
+
+            _libraryManager.CreateItem(video, null);
+            _logger.LogInformation("Indexed intro video in Jellyfin library: {Path}", path);
+            return video;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to index intro video in Jellyfin library: {Path}", path);
+            return null;
+        }
     }
 
     private static bool IsPluginVideo(string? path, PluginConfiguration config)

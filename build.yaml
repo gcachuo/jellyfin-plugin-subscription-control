@@ -1,6 +1,6 @@
 name: 'EasyMovie Subscription'
 guid: 'a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a'
-version: '1.0.5.0'
+version: '1.0.6.3'
 targetAbi: '10.11.0.0'
 framework: 'net9.0'
 owner: 'EasyMovie'
@@ -12,6 +12,14 @@ category: 'General'
 artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
+  ## 1.0.6.3
+  - Auto-index intro videos if missing
+
+  ## 1.0.6.2
+  - Added status list to plugin settings
+  - Auto-index expired video if missing
+  - Send username along with userId to API
+
   ## 1.0.6
   - Fixed configuration save using Dashboard.processPluginConfigurationUpdateResult
   

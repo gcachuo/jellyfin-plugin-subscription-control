@@ -56,6 +56,23 @@
                         </button>
                     </div>
                 </form>
+                <h2>Usuarios con estatus</h2>
+                <div class="fieldDescription">Lista de usuarios con estado calculado desde la API.</div>
+                <div class="tableContainer">
+                    <table class="detailTable">
+                        <thead>
+                            <tr>
+                                <th class="detailTableHeaderCell">Usuario</th>
+                                <th class="detailTableHeaderCell">Email</th>
+                                <th class="detailTableHeaderCell">Estatus</th>
+                                <th class="detailTableHeaderCell">Expira</th>
+                                <th class="detailTableHeaderCell">Trial</th>
+                                <th class="detailTableHeaderCell">Cache</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <script type="text/javascript">
@@ -80,6 +97,52 @@
                 Dashboard.hideLoadingMsg();
                 alert('Error al cargar configuración: ' + err);
                 console.error('Load error:', err);
+            });
+        }
+
+        function renderStatusTable(rows) {
+            const tbody = document.getElementById('statusTableBody');
+            tbody.innerHTML = '';
+
+            if (!rows || rows.length === 0) {
+                const emptyRow = document.createElement('tr');
+                const emptyCell = document.createElement('td');
+                emptyCell.colSpan = 6;
+                emptyCell.textContent = 'No hay usuarios con estatus.';
+                emptyRow.appendChild(emptyCell);
+                tbody.appendChild(emptyRow);
+                return;
+            }
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                const cells = [
+                    row.username || '-',
+                    row.email || '-',
+                    row.status || '-',
+                    row.expirationDate || '-',
+                    row.isTrial ? 'Sí' : 'No',
+                    row.cached ? 'Sí' : 'No'
+                ];
+
+                cells.forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadStatusList() {
+            const url = ApiClient.getUrl('EasyMovieSubscription/Status');
+            return ApiClient.ajax({
+                type: 'GET',
+                url,
+                dataType: 'json'
+            }).then(renderStatusTable).catch(err => {
+                console.error('Failed to load status list', err);
             });
         }
 
@@ -117,7 +180,10 @@
         }
 
         document.querySelector('#easymovieConfigPage')
-            .addEventListener('pageshow', loadConfig);
+            .addEventListener('pageshow', () => {
+                loadConfig();
+                loadStatusList();
+            });
         form.addEventListener('submit', saveConfig);
     })();
         </script>
