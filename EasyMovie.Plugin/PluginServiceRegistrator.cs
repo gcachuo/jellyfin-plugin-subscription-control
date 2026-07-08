@@ -1,9 +1,11 @@
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Playback;
 using EasyMovie.Plugin.Providers;
+using EasyMovie.Plugin.Tasks;
 using MediaBrowser.Controller;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Plugins;
+using MediaBrowser.Model.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyMovie.Plugin;
@@ -16,6 +18,7 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
         services.AddMemoryCache();
         services.AddSingleton<SubscriptionClient>();
         services.AddSingleton<IIntroProvider, SubscriptionIntroProvider>();
+        services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, SubscriptionCacheResetTask>();
         services.AddHostedService<PlaybackInterceptor>();
         Console.WriteLine("EasyMovie: Plugin services registered successfully");
     }
