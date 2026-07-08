@@ -62,7 +62,6 @@
                     <table class="detailTable">
                         <thead>
                             <tr>
-                                <th class="detailTableHeaderCell">Usuario</th>
                                 <th class="detailTableHeaderCell">Email</th>
                                 <th class="detailTableHeaderCell">Estatus</th>
                                 <th class="detailTableHeaderCell">Expira</th>
@@ -107,16 +106,36 @@
             if (!rows || rows.length === 0) {
                 const emptyRow = document.createElement('tr');
                 const emptyCell = document.createElement('td');
-                emptyCell.colSpan = 6;
+                emptyCell.colSpan = 5;
                 emptyCell.textContent = 'No hay usuarios con estatus.';
                 emptyRow.appendChild(emptyCell);
                 tbody.appendChild(emptyRow);
                 return;
             }
 
-            rows.forEach(row => {
-                const username = row.username ?? row.Username ?? '-';
-                const email = row.email ?? row.Email ?? '-';
+            const statusOrder = {
+                active: 0,
+                courtesy: 1,
+                expiring: 2,
+                expired: 3
+            };
+            const getStatusValue = row => (row.status ?? row.Status ?? '').toString().toLowerCase();
+            const getStatusRank = row => statusOrder[getStatusValue(row)] ?? 99;
+            const getEmailValue = row => row.email ?? row.Email ?? row.username ?? row.Username ?? '-';
+
+            const sortedRows = [...rows].sort((left, right) => {
+                const rankLeft = getStatusRank(left);
+                const rankRight = getStatusRank(right);
+                if (rankLeft !== rankRight) {
+                    return rankLeft - rankRight;
+                }
+
+                return getEmailValue(left).toString().toLowerCase()
+                    .localeCompare(getEmailValue(right).toString().toLowerCase());
+            });
+
+            sortedRows.forEach(row => {
+                const email = getEmailValue(row);
                 const status = row.status ?? row.Status ?? '-';
                 const expirationDate = row.expirationDate ?? row.ExpirationDate ?? '-';
                 const isTrial = row.isTrial ?? row.IsTrial ?? false;
@@ -124,7 +143,6 @@
 
                 const tr = document.createElement('tr');
                 const cells = [
-                    username,
                     email,
                     status,
                     expirationDate,
