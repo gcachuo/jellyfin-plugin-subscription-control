@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="1.0.7.0"
+VERSION="1.0.8.0"
 BUILD_DIR="EasyMovie.Plugin/bin/Release/net9.0"
 PACKAGE_NAME="EasyMovie.Plugin-${VERSION}.zip"
 
