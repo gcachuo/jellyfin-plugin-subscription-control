@@ -13,6 +13,10 @@ artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
   ## 1.0.7
+  - Corregido LiveTV policy sync y pruebas de expirados
+  
+
+  ## 1.0.7
   - Sync Live TV access with subscription status; Status UI uses clientes endpoint with plan/last activity
   
 

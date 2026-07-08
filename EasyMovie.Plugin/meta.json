@@ -1,6 +1,6 @@
 {
   "category": "General",
-  "changelog": "🔄 Changes\r\n\r\n- Sync Live TV access with subscription status; Status UI uses clientes endpoint with plan/last activity",
+  "changelog": "🔄 Changes\r\n\r\n- Corregido LiveTV policy sync y pruebas de expirados",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
