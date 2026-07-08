@@ -115,14 +115,21 @@
             }
 
             rows.forEach(row => {
+                const username = row.username ?? row.Username ?? '-';
+                const email = row.email ?? row.Email ?? '-';
+                const status = row.status ?? row.Status ?? '-';
+                const expirationDate = row.expirationDate ?? row.ExpirationDate ?? '-';
+                const isTrial = row.isTrial ?? row.IsTrial ?? false;
+                const cached = row.cached ?? row.Cached ?? false;
+
                 const tr = document.createElement('tr');
                 const cells = [
-                    row.username || '-',
-                    row.email || '-',
-                    row.status || '-',
-                    row.expirationDate || '-',
-                    row.isTrial ? 'Sí' : 'No',
-                    row.cached ? 'Sí' : 'No'
+                    username,
+                    email,
+                    status,
+                    expirationDate,
+                    isTrial ? 'Sí' : 'No',
+                    cached ? 'Sí' : 'No'
                 ];
 
                 cells.forEach(value => {
