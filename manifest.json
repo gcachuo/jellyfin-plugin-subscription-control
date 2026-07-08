@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/EasyMovie-Plugin",
     "versions": [
       {
+        "timestamp": "2026-07-08T00:13:00.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "EE8B95A80892C41CC08224F178E29B37",
+        "version": "1.0.3.0",
+        "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed logo not displaying (removed hardcoded imagePath)\r\n- Fixed version detection issues\r\n- Jellyfin now auto-detects logo location",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.3/EasyMovie.Plugin-1.0.3.0.zip"
+      },
+      {
         "timestamp": "2026-07-07T23:56:00.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "7A36A7CDAEE09C8E7A4E32D4C702FD16",
