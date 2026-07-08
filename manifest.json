@@ -9,11 +9,11 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
-        "timestamp": "2026-07-08T04:52:00.000Z",
+        "timestamp": "2026-07-08T05:02:00.000Z",
         "targetAbi": "10.11.6.0",
-        "checksum": "574AF6B03B6A61499D78A099E2B7AF2A",
+        "checksum": "94F4C89BBB1C948D0BF0B06B93878384",
         "version": "1.0.5.0",
-        "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed IIntroProvider logging (use ILoggerFactory)\r\n- Simplified configuration save (use alert instead of Dashboard.alert)\r\n- Added diagnostic logging for service registration\r\n- Enabled autoUpdate for automatic plugin updates",
+        "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed IIntroProvider logging (use ILoggerFactory)\r\n- Simplified configuration save (use alert instead of Dashboard.alert)\r\n- Added diagnostic logging for service registration\r\n- Enabled autoUpdate for automatic plugin updates\r\n- Fixed assembly version to match plugin version",
         "dependencies": [],
         "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.5/EasyMovie.Plugin-1.0.5.0.zip"
       },

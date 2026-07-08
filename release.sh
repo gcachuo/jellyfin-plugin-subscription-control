@@ -25,6 +25,14 @@ echo "📦 Versión: $VERSION"
 echo "📝 Changelog: $CHANGELOG"
 echo ""
 
+# Actualizar .csproj con la versión
+echo "📝 Actualizando EasyMovie.Plugin.csproj..."
+sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${VERSION}</AssemblyVersion>|" EasyMovie.Plugin/EasyMovie.Plugin.csproj
+sed -i "s|<FileVersion>.*</FileVersion>|<FileVersion>${VERSION}</FileVersion>|" EasyMovie.Plugin/EasyMovie.Plugin.csproj
+sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" EasyMovie.Plugin/EasyMovie.Plugin.csproj
+
+echo "✅ .csproj actualizado"
+
 # Actualizar meta.json con el nuevo changelog
 echo "📝 Actualizando meta.json..."
 # Escapar caracteres especiales para JSON
