@@ -1,6 +1,6 @@
 {
   "category": "General",
-  "changelog": "✨ Initial Release\r\n\r\n- Subscription status integration with EasyMovie API\r\n- Preroll video injection based on subscription state\r\n- Content blocking for expired subscriptions\r\n- Trial user detection and handling\r\n- Fail-safe mode (defaults to active on API errors)",
+  "changelog": "🐛 Bug Fixes\r\n\r\n- Fixed IIntroProvider logging (use ILoggerFactory)\r\n- Simplified configuration save (use alert instead of Dashboard.alert)\r\n- Added diagnostic logging for service registration\r\n- Enabled autoUpdate for automatic plugin updates",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
