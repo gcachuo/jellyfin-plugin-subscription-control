@@ -12,6 +12,25 @@ category: 'General'
 artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
+  ## 1.0.4
+  - Fixed configuration save clearing all fields
+  - Configuration now reloads properly after save
+  - Added error handling for save operations
+  
+  ## 1.0.3
+  - Fixed logo not displaying (removed hardcoded imagePath)
+  - Fixed version detection issues
+  - Jellyfin now auto-detects logo location
+  
+  ## 1.0.2
+  - Fixed blank configuration page
+  - Updated HTML structure to match Jellyfin 10.11.6 format
+  - Added field descriptions for all settings
+  
+  ## 1.0.1
+  - Fixed configuration page not appearing
+  - Improved plugin page registration
+  
   ## 1.0.0
   - Initial release
   - Subscription status integration with EasyMovie API
