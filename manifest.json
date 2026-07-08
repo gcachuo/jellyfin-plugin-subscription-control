@@ -5,8 +5,7 @@
     "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
     "owner": "gcachuo",
     "category": "General",
-    "imageUrl": "https://easymovie.lat/logo.png",
-    "repositoryUrl": "https://github.com/gcachuo/EasyMovie-Plugin",
+    "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
         "timestamp": "2026-07-08T00:13:00.000Z",
