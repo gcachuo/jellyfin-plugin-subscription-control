@@ -234,19 +234,32 @@ public sealed class LiveTvPolicySyncService : BackgroundService
 
         var methods = managerType.GetMethods(flags)
             .Where(method => method.Name.Contains("Policy", StringComparison.OrdinalIgnoreCase)
-                && method.GetParameters().Length == 1)
+                && method.Name.Contains("Get", StringComparison.OrdinalIgnoreCase)
+                && method.GetParameters().Length >= 1
+                && method.GetParameters().Length <= 2)
             .OrderBy(method => method.Name.Contains("GetUserPolicy", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
             .ToList();
         foreach (var method in methods)
         {
-            var paramType = method.GetParameters()[0].ParameterType;
+            var parameters = method.GetParameters();
+            var paramType = parameters[0].ParameterType;
             var argument = candidates.FirstOrDefault(candidate => candidate is not null && paramType.IsInstanceOfType(candidate));
             if (argument is null)
             {
                 continue;
             }
 
-            var result = method.Invoke(_userManager, new[] { argument });
+            object?[] args;
+            if (parameters.Length == 2 && parameters[1].ParameterType == typeof(CancellationToken))
+            {
+                args = new object?[] { argument, cancellationToken };
+            }
+            else
+            {
+                args = new object?[] { argument };
+            }
+
+            var result = method.Invoke(_userManager, args);
             if (result is null)
             {
                 continue;
