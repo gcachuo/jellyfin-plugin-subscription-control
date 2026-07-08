@@ -126,11 +126,7 @@ public sealed class LiveTvPolicySyncService : BackgroundService
     private static bool TrySetLiveTvAccess(object policy, bool allowLiveTv, out bool currentValue)
     {
         currentValue = allowLiveTv;
-        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        var policyType = policy.GetType();
-        var property = policyType.GetProperty("EnableLiveTvAccess", flags)
-            ?? policyType.GetProperty("EnableLiveTv", flags)
-            ?? policyType.GetProperty("LiveTvEnabled", flags);
+        var property = FindLiveTvAccessProperty(policy);
         if (property is null)
         {
             return false;
@@ -207,17 +203,17 @@ public sealed class LiveTvPolicySyncService : BackgroundService
         var userType = user.GetType();
         var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         var property = userType.GetProperty("Policy", flags)
-            ?? userType.GetProperty("UserPolicy", flags)
-            ?? userType.GetProperty("Permissions", flags);
+            ?? userType.GetProperty("UserPolicy", flags);
         if (property is not null)
         {
-            return property.GetValue(user);
+            var policy = property.GetValue(user);
+            return policy is not null && HasLiveTvAccessProperty(policy) ? policy : null;
         }
 
         var field = userType.GetField("Policy", flags)
-            ?? userType.GetField("UserPolicy", flags)
-            ?? userType.GetField("Permissions", flags);
-        return field?.GetValue(user);
+            ?? userType.GetField("UserPolicy", flags);
+        var fieldPolicy = field?.GetValue(user);
+        return fieldPolicy is not null && HasLiveTvAccessProperty(fieldPolicy) ? fieldPolicy : null;
     }
 
     private async Task<object?> GetUserPolicyFromManagerAsync(User user, CancellationToken cancellationToken)
@@ -260,38 +256,17 @@ public sealed class LiveTvPolicySyncService : BackgroundService
             }
 
             var result = method.Invoke(_userManager, args);
-            if (result is null)
+            var unwrapped = await UnwrapAsyncResult(result).ConfigureAwait(false);
+            if (unwrapped is null)
             {
                 continue;
             }
 
-            if (result is Task task)
+            var policy = TryGetPolicyFromUserObject(unwrapped) ?? unwrapped;
+            if (policy is not null && HasLiveTvAccessProperty(policy))
             {
-                await task.ConfigureAwait(false);
-                var resultProperty = task.GetType().GetProperty("Result");
-                return resultProperty?.GetValue(task);
+                return policy;
             }
-
-            if (result is ValueTask valueTask)
-            {
-                await valueTask.ConfigureAwait(false);
-                return null;
-            }
-
-            var resultType = result.GetType();
-            if (resultType.IsValueType && resultType.FullName?.StartsWith("System.Threading.Tasks.ValueTask", StringComparison.Ordinal) == true)
-            {
-                var asTask = resultType.GetMethod("AsTask", BindingFlags.Instance | BindingFlags.Public);
-                if (asTask is not null)
-                {
-                    var awaited = (Task)asTask.Invoke(result, null)!;
-                    await awaited.ConfigureAwait(false);
-                    var resultProperty = awaited.GetType().GetProperty("Result");
-                    return resultProperty?.GetValue(awaited);
-                }
-            }
-
-            return result;
         }
 
         if (cancellationToken.IsCancellationRequested)
@@ -344,17 +319,50 @@ public sealed class LiveTvPolicySyncService : BackgroundService
         var userType = userObject.GetType();
         var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         var property = userType.GetProperty("Policy", flags)
-            ?? userType.GetProperty("UserPolicy", flags)
-            ?? userType.GetProperty("Permissions", flags);
+            ?? userType.GetProperty("UserPolicy", flags);
         if (property is not null)
         {
-            return property.GetValue(userObject);
+            var policy = property.GetValue(userObject);
+            return policy is not null && HasLiveTvAccessProperty(policy) ? policy : null;
         }
 
         var field = userType.GetField("Policy", flags)
-            ?? userType.GetField("UserPolicy", flags)
-            ?? userType.GetField("Permissions", flags);
-        return field?.GetValue(userObject);
+            ?? userType.GetField("UserPolicy", flags);
+        var fieldPolicy = field?.GetValue(userObject);
+        return fieldPolicy is not null && HasLiveTvAccessProperty(fieldPolicy) ? fieldPolicy : null;
+    }
+
+    private static bool HasLiveTvAccessProperty(object policy)
+    {
+        return FindLiveTvAccessProperty(policy) is not null;
+    }
+
+    private static PropertyInfo? FindLiveTvAccessProperty(object policy)
+    {
+        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        var policyType = policy.GetType();
+        var property = policyType.GetProperty("EnableLiveTvAccess", flags)
+            ?? policyType.GetProperty("EnableLiveTv", flags)
+            ?? policyType.GetProperty("LiveTvEnabled", flags);
+        if (property is not null)
+        {
+            return property;
+        }
+
+        return policyType
+            .GetProperties(flags)
+            .FirstOrDefault(candidate =>
+            {
+                var candidateType = Nullable.GetUnderlyingType(candidate.PropertyType) ?? candidate.PropertyType;
+                if (candidateType != typeof(bool))
+                {
+                    return false;
+                }
+
+                var name = candidate.Name;
+                return name.Contains("LiveTv", StringComparison.OrdinalIgnoreCase)
+                    && name.Contains("Access", StringComparison.OrdinalIgnoreCase);
+            });
     }
 
     private static async Task<object?> UnwrapAsyncResult(object? result)
