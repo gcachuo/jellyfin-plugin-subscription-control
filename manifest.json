@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-08T08:52:09.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "FE58278653313CFCEF419DAD7B8DD68F",
+        "version": "1.0.7.0",
+        "changelog": "🔄 Changes\r\n\r\n- Sync Live TV access with subscription status; Status UI uses clientes endpoint with plan/last activity",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.7/EasyMovie.Plugin-1.0.7.0.zip"
+      },
+      {
         "timestamp": "2026-07-08T05:10:00.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "59D10807FC8BAB5B93837BB9055F92D1",
