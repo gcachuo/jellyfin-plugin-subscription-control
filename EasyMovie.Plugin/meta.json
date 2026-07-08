@@ -1,13 +1,13 @@
 {
   "category": "General",
-  "changelog": "🔄 Changes\r\n\r\n- Fixed configuration save using Dashboard.processPluginConfigurationUpdateResult",
+  "changelog": "🔄 Changes\r\n\r\n- Sync Live TV access with subscription status; Status UI uses clientes endpoint with plan/last activity",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
   "owner": "gcachuo",
   "targetAbi": "10.11.6.0",
-  "timestamp": "2026-07-08T07:02:00.0000000Z",
-  "version": "1.0.6.3",
+  "timestamp": "2026-07-08T08:47:00.0000000Z",
+  "version": "1.0.6.4",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": []

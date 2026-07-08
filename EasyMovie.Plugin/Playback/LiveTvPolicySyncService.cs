@@ -119,13 +119,15 @@ public sealed class LiveTvPolicySyncService : BackgroundService
     private static bool TrySetLiveTvAccess(User user, bool allowLiveTv, out bool currentValue)
     {
         currentValue = allowLiveTv;
-        var policy = user.Policy;
+        var policy = GetUserPolicy(user);
         if (policy is null)
         {
             return false;
         }
 
-        var property = policy.GetType().GetProperty("EnableLiveTvAccess", BindingFlags.Instance | BindingFlags.Public);
+        var policyType = policy.GetType();
+        var property = policyType.GetProperty("EnableLiveTvAccess", BindingFlags.Instance | BindingFlags.Public)
+            ?? policyType.GetProperty("EnableLiveTv", BindingFlags.Instance | BindingFlags.Public);
         if (property is null || property.PropertyType != typeof(bool))
         {
             return false;
@@ -139,7 +141,7 @@ public sealed class LiveTvPolicySyncService : BackgroundService
     private async Task PersistUserPolicyAsync(User user, CancellationToken cancellationToken)
     {
         var managerType = _userManager.GetType();
-        var policy = user.Policy;
+        var policy = GetUserPolicy(user);
         var methods = managerType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
 
         var candidates = new (string Name, int Params, bool IncludePolicy, bool IncludeToken)[]
@@ -156,6 +158,11 @@ public sealed class LiveTvPolicySyncService : BackgroundService
         {
             var method = methods.FirstOrDefault(m => m.Name == candidate.Name && m.GetParameters().Length == candidate.Params);
             if (method is null)
+            {
+                continue;
+            }
+
+            if (candidate.IncludePolicy && policy is null)
             {
                 continue;
             }
@@ -178,5 +185,13 @@ public sealed class LiveTvPolicySyncService : BackgroundService
         }
 
         _logger.LogWarning("Unable to persist Live TV policy for {User}; no compatible method found", user.Username);
+    }
+
+    private static object? GetUserPolicy(User user)
+    {
+        var userType = user.GetType();
+        var property = userType.GetProperty("Policy", BindingFlags.Instance | BindingFlags.Public)
+            ?? userType.GetProperty("UserPolicy", BindingFlags.Instance | BindingFlags.Public);
+        return property?.GetValue(user);
     }
 }
