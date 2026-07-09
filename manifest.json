@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-09T20:32:00.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "B6E4F76F72C4F673D3282CD50BC37848",
+        "version": "1.0.10.0",
+        "changelog": "🆕 Nuevas funcionalidades\r\n\r\n- Tarea programada para reactivar automáticamente usuarios expirados\r\n- Los usuarios disabled pueden entrar y ver video de expired\r\n- Actualización de labels en JFA-Go según estado de suscripción\r\n- Cache bust con cacheMinutes=0\r\n- Status TRIAL para usuarios en período de prueba",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.10.0/EasyMovie.Plugin-1.0.10.0.zip"
+      },
+      {
         "timestamp": "2026-07-08T09:48:13.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "95838177774D18F48B5CDFCFB3120361",
