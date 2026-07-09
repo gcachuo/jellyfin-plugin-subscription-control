@@ -9,9 +9,9 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
-        "timestamp": "2026-07-09T20:32:00.000Z",
+        "timestamp": "2026-07-09T22:47:00.000Z",
         "targetAbi": "10.11.6.0",
-        "checksum": "B6E4F76F72C4F673D3282CD50BC37848",
+        "checksum": "DF76238DB45AAD680D8E7A42E518827D",
         "version": "1.0.10.0",
         "changelog": "🆕 Nuevas funcionalidades\r\n\r\n- Tarea programada para reactivar automáticamente usuarios expirados\r\n- Los usuarios disabled pueden entrar y ver video de expired\r\n- Actualización de labels en JFA-Go según estado de suscripción\r\n- Cache bust con cacheMinutes=0\r\n- Status TRIAL para usuarios en período de prueba",
         "dependencies": [],
