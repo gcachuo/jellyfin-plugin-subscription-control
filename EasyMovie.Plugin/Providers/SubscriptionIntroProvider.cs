@@ -54,7 +54,7 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
 
         var path = status.IsCourtesy
             ? config.Videos.Courtesy
-            : status.IsExpiring && status.DaysUntilExpiration.HasValue && status.DaysUntilExpiration.Value <= config.ExpiringThresholdDays
+            : status.IsExpiring
                 ? config.Videos.Expiring
                 : config.Videos.Active;
 
