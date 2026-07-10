@@ -26,10 +26,7 @@ public sealed class SubscriptionClient
     {
         _cache = cache;
         _logger = logger;
-        _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(5)
-        };
+        _httpClient = new HttpClient();
     }
 
     public async Task<SubscriptionStatus> GetStatusAsync(User user, PluginConfiguration config, CancellationToken cancellationToken)
@@ -48,6 +45,9 @@ public sealed class SubscriptionClient
 
         try
         {
+            // Set timeout from config
+            _httpClient.Timeout = TimeSpan.FromSeconds(config.ApiTimeoutSeconds);
+            
             var url = BuildUrl(config, user.Id.ToString("N"), user.Username);
             using var response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)

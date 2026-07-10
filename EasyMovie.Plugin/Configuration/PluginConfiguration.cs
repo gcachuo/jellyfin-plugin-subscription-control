@@ -8,6 +8,7 @@ public class PluginConfiguration : BasePluginConfiguration
     public int ExpiringThresholdDays { get; set; } = 7;
     public int TrialMaxDurationDays { get; set; } = 14;
     public int CacheDurationMinutes { get; set; } = 10;
+    public int ApiTimeoutSeconds { get; set; } = 30;
     public VideoPaths Videos { get; set; } = new();
 
     public class VideoPaths

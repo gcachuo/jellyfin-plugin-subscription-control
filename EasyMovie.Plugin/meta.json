@@ -1,13 +1,13 @@
 {
   "category": "General",
-  "changelog": "🔄 Changes\r\n\r\n- Scheduled task para invalidar cache del plugin y API",
+  "changelog": "� Fixes\r\n\r\n- Timeout API configurable desde UI (default 30s)",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
   "owner": "gcachuo",
   "targetAbi": "10.11.6.0",
-  "timestamp": "2026-07-09T20:41:00.0000000Z",
-  "version": "1.0.10.0",
+  "timestamp": "2026-07-10T00:31:00.0000000Z",
+  "version": "1.0.10.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": []
