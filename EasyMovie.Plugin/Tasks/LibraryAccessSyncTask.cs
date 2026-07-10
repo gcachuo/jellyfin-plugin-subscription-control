@@ -126,7 +126,7 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         var planInfo = status.Plan;
         if (planInfo is null)
         {
-            _logger.LogWarning("Plan info not found for {User}; skipping library access sync", user.Username);
+            _logger.LogDebug("No plan assigned to {User}; keeping current library access", user.Username);
             return;
         }
 
