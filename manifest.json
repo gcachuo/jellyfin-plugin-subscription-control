@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-10T21:49:28.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "CF785036D2DAF327B1380DA87B982118",
+        "version": "1.0.11.4",
+        "changelog": "🔄 Changes\r\n\r\n- Fix folder ID comparison to avoid unnecessary access updates. Normalize GUIDs before comparing so policies only update when truly different.",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.11.4/EasyMovie.Plugin-1.0.11.4.zip"
+      },
+      {
         "timestamp": "2026-07-10T20:06:49.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "D510B986C943A8BC5377E87EBECAF2C8",
