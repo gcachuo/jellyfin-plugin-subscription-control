@@ -21,6 +21,17 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 
+# Prevent duplicate release tags
+if command -v gh >/dev/null 2>&1; then
+    if gh release view "v${VERSION}" >/dev/null 2>&1; then
+        echo "❌ Error: Ya existe el release v${VERSION}."
+        echo "   Sube la versión patch en package.sh y vuelve a ejecutar."
+        exit 1
+    fi
+else
+    echo "⚠️  Warning: gh CLI no disponible, se omite validación de release existente"
+fi
+
 echo "📦 Versión: $VERSION"
 echo "📝 Changelog: $CHANGELOG"
 echo ""
