@@ -202,8 +202,18 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         if (current is null && target is null) return true;
         if (current is null || target is null) return false;
         if (current.Length != target.Length) return false;
-        
-        var currentSet = new HashSet<string>(current, StringComparer.OrdinalIgnoreCase);
-        return target.All(id => currentSet.Contains(id));
+
+        var currentSet = new HashSet<string>(current.Select(NormalizeFolderId), StringComparer.OrdinalIgnoreCase);
+        return target.Select(NormalizeFolderId).All(id => currentSet.Contains(id));
+    }
+
+    private static string NormalizeFolderId(string id)
+    {
+        if (Guid.TryParse(id, out var guid))
+        {
+            return guid.ToString("N");
+        }
+
+        return id.Replace("-", string.Empty).Trim().ToLowerInvariant();
     }
 }
