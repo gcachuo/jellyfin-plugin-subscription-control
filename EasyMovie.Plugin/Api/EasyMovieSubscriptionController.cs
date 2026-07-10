@@ -20,16 +20,19 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
 {
     private readonly SubscriptionClient _subscriptionClient;
     private readonly IUserManager _userManager;
+    private readonly ILibraryManager _libraryManager;
     private readonly HttpClient _httpClient;
     private readonly ILogger<EasyMovieSubscriptionController> _logger;
 
     public EasyMovieSubscriptionController(
         SubscriptionClient subscriptionClient,
         IUserManager userManager,
+        ILibraryManager libraryManager,
         ILoggerFactory loggerFactory)
     {
         _subscriptionClient = subscriptionClient;
         _userManager = userManager;
+        _libraryManager = libraryManager;
         _httpClient = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(10)
@@ -120,6 +123,30 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
 
         var ordered = results.OrderBy(r => r.Username).ToList();
         return Ok(ordered);
+    }
+
+    [HttpGet("Libraries")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult GetLibraries()
+    {
+        var libraries = _libraryManager.GetVirtualFolders()
+            .Select(folder => new LibraryDto
+            {
+                Id = folder.ItemId,
+                Name = folder.Name,
+                CollectionType = folder.CollectionType?.ToString()
+            })
+            .OrderBy(lib => lib.Name)
+            .ToList();
+
+        return Ok(libraries);
+    }
+
+    public sealed class LibraryDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? CollectionType { get; set; }
     }
 
     public sealed class UserStatusDto
