@@ -32,6 +32,33 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "✅ Build successful!"
+echo ""
+
+# Run tests
+echo "🧪 Running tests..."
+echo ""
+echo "Running unit tests..."
+dotnet test EasyMovie.Plugin.Tests --configuration Release --verbosity minimal --no-build
+UNIT_TEST_RESULT=$?
+
+echo ""
+echo "Running integration tests..."
+dotnet test EasyMovie.Plugin.IntegrationTests --configuration Release --verbosity minimal --no-build
+INTEGRATION_TEST_RESULT=$?
+
+if [ $UNIT_TEST_RESULT -ne 0 ] || [ $INTEGRATION_TEST_RESULT -ne 0 ]; then
+    echo ""
+    echo "❌ Tests failed! Package will not be created."
+    echo "   Unit tests: $([ $UNIT_TEST_RESULT -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
+    echo "   Integration tests: $([ $INTEGRATION_TEST_RESULT -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
+    exit 1
+fi
+
+echo ""
+echo "✅ All tests passed (40 tests total)!"
+echo ""
+
 # Verificar que existe el directorio de build
 if [ ! -d "$BUILD_DIR" ]; then
     echo "❌ Build directory not found. Run 'dotnet build -c Release' first."

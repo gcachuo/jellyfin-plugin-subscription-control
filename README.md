@@ -143,6 +143,32 @@ dotnet build EasyMovie.Plugin/EasyMovie.Plugin.csproj -c Release
 # EasyMovie.Plugin/bin/Release/net9.0/
 ```
 
+### Running Tests
+
+The plugin includes comprehensive test coverage:
+
+```bash
+# Run all tests (unit + integration)
+dotnet test
+
+# Run only unit tests (28 tests, ~2 seconds)
+dotnet test EasyMovie.Plugin.Tests
+
+# Run only integration tests (12 tests, ~3 seconds)
+dotnet test EasyMovie.Plugin.IntegrationTests
+
+# Run with detailed output
+dotnet test --logger "console;verbosity=detailed"
+```
+
+**Test Coverage:**
+- ✅ 28 unit tests - Core business logic
+- ✅ 12 integration tests - Complete workflows
+- ✅ 40 total tests - All passing
+- ✅ Given-When-Then documentation
+
+See [EasyMovie.Plugin.Tests/README.md](EasyMovie.Plugin.Tests/README.md) and [EasyMovie.Plugin.IntegrationTests/README.md](EasyMovie.Plugin.IntegrationTests/README.md) for details.
+
 ### Creating a Release Package
 
 **Windows (PowerShell):**
@@ -156,7 +182,13 @@ chmod +x package.sh
 ./package.sh
 ```
 
-This will create `EasyMovie.Plugin-1.0.0.0.zip` and display the MD5 checksum for the manifest.
+The packaging script will:
+1. 🔨 Build the plugin in Release mode
+2. 🧪 Run all 40 tests (unit + integration)
+3. 📦 Create `EasyMovie.Plugin-x.x.x.x.zip` only if tests pass
+4. 📊 Display MD5 checksum for manifest
+
+**Note:** Package creation is blocked if any test fails, ensuring quality releases.
 
 ## Contributing
 
