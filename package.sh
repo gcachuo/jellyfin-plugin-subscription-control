@@ -20,11 +20,8 @@ if [ ! -d "$BUILD_DIR" ]; then
     exit 1
 fi
 
-# Crear el ZIP con los archivos necesarios
-zip -j "${PACKAGE_NAME}" \
-    "${BUILD_DIR}/EasyMovie.Plugin.dll" \
-    "${BUILD_DIR}/meta.json" \
-    "${BUILD_DIR}/logo.png"
+# Crear el ZIP con los archivos necesarios (solo dll, logo y meta)
+cd "${BUILD_DIR}" && zip "../../../../${PACKAGE_NAME}" EasyMovie.Plugin.dll logo.png meta.json && cd ../../../..
 
 # Calcular checksum MD5
 CHECKSUM=$(md5sum "${PACKAGE_NAME}" | awk '{print toupper($1)}')
