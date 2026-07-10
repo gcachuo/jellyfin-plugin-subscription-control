@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-10T00:48:00.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "36B31143DF8258F1A55CFEF0D0B12BC7",
+        "version": "1.0.10.2",
+        "changelog": "🔧 Fixes\r\n\r\n- Timeout API configurable desde UI (default 30s)",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.10.2/EasyMovie.Plugin-1.0.10.2.zip"
+      },
+      {
         "timestamp": "2026-07-10T00:31:00.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "0DD21F120377198EFA9FAE14D4BBA030",
