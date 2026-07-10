@@ -3,10 +3,28 @@
 VERSION="1.0.10.3"
 BUILD_DIR="EasyMovie.Plugin/bin/Release/net9.0"
 PACKAGE_NAME="EasyMovie.Plugin-${VERSION}.zip"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.0000000Z")
 
 echo "📦 Packaging EasyMovie Plugin v${VERSION}..."
 
-# Build first
+# Update version in all files
+echo "📝 Updating version in project files..."
+
+# Update .csproj
+sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>${VERSION}<\/AssemblyVersion>/" EasyMovie.Plugin/EasyMovie.Plugin.csproj
+sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>${VERSION}<\/FileVersion>/" EasyMovie.Plugin/EasyMovie.Plugin.csproj
+sed -i "s/<Version>.*<\/Version>/<Version>${VERSION}<\/Version>/" EasyMovie.Plugin/EasyMovie.Plugin.csproj
+
+# Update meta.json
+sed -i "s/\"version\": \".*\"/\"version\": \"${VERSION}\"/" EasyMovie.Plugin/meta.json
+sed -i "s/\"timestamp\": \".*\"/\"timestamp\": \"${TIMESTAMP}\"/" EasyMovie.Plugin/meta.json
+
+# Update build.yaml
+sed -i "s/version: '.*'/version: '${VERSION}'/" build.yaml
+
+echo "✅ Version updated to ${VERSION}"
+
+# Build
 echo "🔨 Building..."
 dotnet build -c Release
 if [ $? -ne 0 ]; then
