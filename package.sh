@@ -65,7 +65,22 @@ if [ ! -d "$BUILD_DIR" ]; then
     exit 1
 fi
 
+# Limpiar ZIPs antiguos
+echo "🧹 Cleaning old packages..."
+OLD_ZIPS=$(find . -maxdepth 1 -name "EasyMovie.Plugin-*.zip" -type f)
+if [ -n "$OLD_ZIPS" ]; then
+    echo "$OLD_ZIPS" | while read -r zip; do
+        echo "   Removing: $(basename "$zip")"
+        rm -f "$zip"
+    done
+    echo "✅ Old packages removed"
+else
+    echo "   No old packages found"
+fi
+echo ""
+
 # Crear el ZIP con los archivos necesarios (solo dll, logo y meta)
+echo "📦 Creating package..."
 cd "${BUILD_DIR}" && zip "../../../../${PACKAGE_NAME}" EasyMovie.Plugin.dll logo.png meta.json && cd ../../../..
 
 # Calcular checksum MD5
