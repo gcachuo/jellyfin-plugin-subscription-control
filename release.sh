@@ -121,9 +121,9 @@ git push
 
 # Crear release en GitHub
 echo "🚀 Creando release en GitHub..."
-gh release create "v${VERSION%.*}" \
+gh release create "v${VERSION}" \
     "EasyMovie.Plugin-${VERSION}.zip" \
-    --title "v${VERSION%.*} - ${CHANGELOG}" \
+    --title "v${VERSION} - ${CHANGELOG}" \
     --notes "## 🔄 Cambios
 
 ${CHANGELOG}
@@ -138,7 +138,7 @@ MD5: \`${CHECKSUM}\`"
 echo "📝 Actualizando manifest.json..."
 
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-RELEASE_URL="https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v${VERSION%.*}/EasyMovie.Plugin-${VERSION}.zip"
+RELEASE_URL="https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v${VERSION}/EasyMovie.Plugin-${VERSION}.zip"
 
 # Escapar el changelog para JSON
 CHANGELOG_JSON=$(echo "$CHANGELOG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
