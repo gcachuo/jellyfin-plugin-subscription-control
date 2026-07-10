@@ -11,7 +11,7 @@
       {
         "timestamp": "2026-07-10T00:31:00.000Z",
         "targetAbi": "10.11.6.0",
-        "checksum": "732E64BCDF76C9E4658FDEDB480F9433",
+        "checksum": "26623E9738D1D967234649EA326D205A",
         "version": "1.0.10.1",
         "changelog": "🔧 Fixes\r\n\r\n- Timeout API configurable desde UI (default 30s)",
         "dependencies": [],

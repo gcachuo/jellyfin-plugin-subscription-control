@@ -1,10 +1,18 @@
 #!/bin/bash
 
-VERSION="1.0.10.0"
+VERSION="1.0.10.1"
 BUILD_DIR="EasyMovie.Plugin/bin/Release/net9.0"
 PACKAGE_NAME="EasyMovie.Plugin-${VERSION}.zip"
 
 echo "📦 Packaging EasyMovie Plugin v${VERSION}..."
+
+# Build first
+echo "🔨 Building..."
+dotnet build -c Release
+if [ $? -ne 0 ]; then
+    echo "❌ Build failed"
+    exit 1
+fi
 
 # Verificar que existe el directorio de build
 if [ ! -d "$BUILD_DIR" ]; then
