@@ -33,7 +33,7 @@ nano /ruta/a/api/plans.json
 
 ```bash
 # Solo si la API es accesible
-export EASYMOVIE_API_URL="https://easymovie.lat/api/subscription.php"
+export EASYMOVIE_API_URL="https://easymovie.lat/subscriptions/api/subscription.php"
 dotnet test --filter "E2E_ProductionAPI_MustNotBeInTestMode"
 ```
 
@@ -65,6 +65,32 @@ dotnet test
 
 ## 📦 Proceso de Release
 
+### Paso 0: Actualizar Servidor (SI ES NECESARIO)
+
+Si modificaste `plans.json`:
+
+```bash
+# 1. Verificar cambios locales
+cd /mnt/f/PhpStormProjects/EasyMovie/api
+git diff plans.json
+
+# 2. Subir al servidor (elige tu método)
+
+# Opción A: Git pull en servidor
+ssh usuario@easymovie.lat
+cd /ruta/a/api
+git pull origin master
+sudo systemctl restart apache2  # o php-fpm
+
+# Opción B: SCP/rsync
+scp plans.json usuario@easymovie.lat:/ruta/a/api/
+ssh usuario@easymovie.lat "sudo systemctl restart apache2"
+
+# 3. Verificar que se aplicó
+curl -s "https://easymovie.lat/subscriptions/api/subscription.php?userId=test" | jq '.testMode'
+# Debe retornar: false (no null)
+```
+
 ### Paso 1: Preparación
 
 ```bash
@@ -72,9 +98,13 @@ dotnet test
 nano package.sh
 # Cambiar: VERSION="1.0.10.5"
 
-# 2. Verificar que test_mode está desactivado
-export PLANS_JSON_PATH="/ruta/a/api/plans.json"
+# 2. Verificar que test_mode está desactivado LOCALMENTE
+export PLANS_JSON_PATH="/mnt/f/PhpStormProjects/EasyMovie/api/plans.json"
 dotnet test --filter "PlansConfigRegressionTests"
+
+# 3. Verificar que test_mode está desactivado EN SERVIDOR
+export EASYMOVIE_API_URL="https://easymovie.lat/subscriptions/api/subscription.php"
+dotnet test --filter "E2E_ProductionAPI_MustNotBeInTestMode"
 ```
 
 ### Paso 2: Crear Package
@@ -164,9 +194,12 @@ cat /ruta/a/api/plans.json | grep -A2 "test_mode"
 ### Tests E2E fallan
 ```bash
 # Verificar API manualmente
-curl -s "https://easymovie.lat/api/subscription.php?userId=test" | jq '.testMode'
+curl -s "https://easymovie.lat/subscriptions/api/subscription.php?userId=test" | jq '.testMode'
 
 # Debe retornar: false
+
+# Si retorna null, el archivo plans.json en el servidor no está actualizado
+# Subir plans.json al servidor y reiniciar PHP/Apache
 ```
 
 ### Package.sh falla
