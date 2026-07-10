@@ -269,6 +269,52 @@ public class TrialUserEndToEndRegressionTests : IDisposable
 
     /// <summary>
     /// Test ID: E2E-REG-005
+    /// Given: Production API
+    /// When: Subscription status is fetched
+    /// Then: TestMode is FALSE (production must not be in test mode)
+    /// 
+    /// CRITICAL: Prevents releasing with test mode enabled
+    /// This would allow unauthorized users to bypass restrictions
+    /// </summary>
+    [Fact]
+    public async Task E2E_ProductionAPI_MustNotBeInTestMode()
+    {
+        // Skip if API URL not configured
+        if (string.IsNullOrEmpty(_apiUrl))
+        {
+            return;
+        }
+
+        // Arrange
+        var trialUser = CreateUser("trial");
+        var config = new PluginConfiguration
+        {
+            ApiUrl = _apiUrl,
+            ApiTimeoutSeconds = 30,
+            CacheDurationMinutes = 0
+        };
+
+        // Act
+        var status = await _subscriptionClient.GetStatusAsync(trialUser, config, CancellationToken.None);
+
+        // Assert - CRITICAL SECURITY CHECK
+        status.Should().NotBeNull();
+        status.TestMode.Should().BeFalse(
+            "CRITICAL: Production API must NOT be in test mode! " +
+            "Test mode allows unauthorized users to bypass subscription restrictions. " +
+            "This must be disabled before release.");
+        
+        // Additional verification: if test mode is somehow true, verify test users list
+        if (status.TestMode)
+        {
+            // This should never happen in production
+            status.TestUsers.Should().BeEmpty(
+                "If test mode is enabled (which it shouldn't be), at least test users list should be empty");
+        }
+    }
+
+    /// <summary>
+    /// Test ID: E2E-REG-006
     /// Given: Real API with trial user having basic plan
     /// When: Folder IDs are retrieved from API
     /// Then: Folder IDs are valid GUIDs

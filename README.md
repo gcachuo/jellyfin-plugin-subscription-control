@@ -163,13 +163,14 @@ dotnet test --logger "console;verbosity=detailed"
 
 **Test Coverage:**
 - ✅ 28 unit tests - Core business logic
-- ✅ 23 integration tests - Complete workflows + Regression
+- ✅ 24 integration tests - Complete workflows + Regression
   - 6 API integration tests
   - 6 Workflow tests
   - 6 Regression tests (critical business rules)
-  - 5 End-to-end regression tests (real API)
-- ✅ **51 total tests** - All passing
+  - 6 End-to-end regression tests (real API)
+- ✅ **52 total tests** - All passing
 - ✅ Given-When-Then documentation
+- 🔴 **Critical**: E2E-REG-005 prevents releases with testMode enabled
 
 See [EasyMovie.Plugin.Tests/README.md](EasyMovie.Plugin.Tests/README.md) and [EasyMovie.Plugin.IntegrationTests/README.md](EasyMovie.Plugin.IntegrationTests/README.md) for details.
 
@@ -188,7 +189,7 @@ chmod +x package.sh
 
 The packaging script will:
 1. 🔨 Build the plugin in Release mode
-2. 🧪 Run all 51 tests (28 unit + 23 integration)
+2. 🧪 Run all 52 tests (28 unit + 24 integration)
 3. 📦 Create `EasyMovie.Plugin-x.x.x.x.zip` only if tests pass
 4. 📊 Display MD5 checksum for manifest
 
@@ -196,7 +197,7 @@ The packaging script will:
 
 #### Regression Tests
 
-The plugin includes **11 critical regression tests** that verify trial user restrictions:
+The plugin includes **12 critical regression tests** that verify trial user restrictions:
 
 **Unit Regression (6 tests)** - Always run:
 - Trial users can only access 2 specific folders
@@ -204,11 +205,12 @@ The plugin includes **11 critical regression tests** that verify trial user rest
 - Trial users have no Live TV access
 - EnableAllFolders is always false for trial users
 
-**End-to-End Regression (5 tests)** - Optional with real API:
+**End-to-End Regression (6 tests)** - Optional with real API:
 - Complete flow with production API
 - API contract validation
 - Response consistency
 - Fail-safe behavior
+- 🔴 **TestMode must be FALSE** (prevents insecure releases)
 - Data quality verification
 
 Run regression tests:

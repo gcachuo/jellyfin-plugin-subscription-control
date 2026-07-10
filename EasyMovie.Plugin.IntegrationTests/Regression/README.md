@@ -44,7 +44,8 @@ dotnet test --filter "FullyQualifiedName~EndToEndRegressionTests"
 - E2E-REG-002: Estructura de respuesta de API
 - E2E-REG-003: Consistencia de respuestas
 - E2E-REG-004: Fail-safe con timeouts
-- E2E-REG-005: Validez de GUIDs de carpetas
+- E2E-REG-005: 🔴 **TestMode debe ser FALSE** (CRÍTICO - previene releases inseguros)
+- E2E-REG-006: Validez de GUIDs de carpetas
 
 ## ¿Cuándo Ejecutar Cada Tipo?
 
@@ -98,6 +99,7 @@ Esto es intencional para:
 - ✅ GUIDs válidos en folder IDs
 - ✅ Respuestas consistentes
 - ✅ Fail-safe funciona correctamente
+- ✅ 🔴 **TestMode desactivado en producción** (CRÍTICO)
 
 ## Ejemplo de Salida
 
