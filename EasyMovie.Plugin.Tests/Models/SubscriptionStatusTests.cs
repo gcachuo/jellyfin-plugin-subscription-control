@@ -6,6 +6,12 @@ namespace EasyMovie.Plugin.Tests.Models;
 
 public class SubscriptionStatusTests
 {
+    /// <summary>
+    /// Test ID: SS-001
+    /// Given: SubscriptionStatus with various status values
+    /// When: IsExpired property is accessed
+    /// Then: Returns true only for "expired" (case-insensitive)
+    /// </summary>
     [Theory]
     [InlineData("expired", true)]
     [InlineData("EXPIRED", true)]
@@ -24,6 +30,12 @@ public class SubscriptionStatusTests
         result.Should().Be(expected);
     }
 
+    /// <summary>
+    /// Test ID: SS-002
+    /// Given: SubscriptionStatus with various status values
+    /// When: IsExpiring property is accessed
+    /// Then: Returns true only for "expiring" (case-insensitive)
+    /// </summary>
     [Theory]
     [InlineData("expiring", true)]
     [InlineData("EXPIRING", true)]
@@ -42,6 +54,12 @@ public class SubscriptionStatusTests
         result.Should().Be(expected);
     }
 
+    /// <summary>
+    /// Test ID: SS-003
+    /// Given: SubscriptionStatus with various status values
+    /// When: IsCourtesy property is accessed
+    /// Then: Returns true only for "courtesy" (case-insensitive)
+    /// </summary>
     [Theory]
     [InlineData("courtesy", true)]
     [InlineData("COURTESY", true)]
@@ -60,6 +78,12 @@ public class SubscriptionStatusTests
         result.Should().Be(expected);
     }
 
+    /// <summary>
+    /// Test ID: SS-004
+    /// Given: PlanInfo with all properties set
+    /// When: Properties are accessed
+    /// Then: All values are correctly stored and retrieved
+    /// </summary>
     [Fact]
     public void PlanInfo_AllProperties_SetCorrectly()
     {

@@ -43,25 +43,46 @@ dotnet test --filter "Name~GetUserPolicyAsync"
 ## Cobertura de Pruebas
 
 ### UserPolicyService (100%)
-- ✅ `GetUserPolicyAsync` - Construcción de política desde usuario
-- ✅ `TrySetLibraryAccess` - Actualización de acceso a bibliotecas
-- ✅ `TrySetLibraryAccess` - Validación de GUIDs inválidos con logging
-- ✅ `SetLiveTvAccess` - Control de acceso a Live TV
-- ✅ `UpdateUserPolicyAsync` - Persistencia exitosa
-- ✅ `UpdateUserPolicyAsync` - Manejo de excepciones
+- ✅ **UPS-001** `GetUserPolicyAsync` - Construcción de política desde usuario
+- ✅ **UPS-002** `TrySetLibraryAccess` - Actualización de acceso a bibliotecas
+- ✅ **UPS-003** `TrySetLibraryAccess` - Validación de GUIDs inválidos con logging
+- ✅ **UPS-004** `SetLiveTvAccess` - Habilitar acceso a Live TV
+- ✅ **UPS-005** `SetLiveTvAccess` - Deshabilitar acceso a Live TV
+- ✅ **UPS-006** `UpdateUserPolicyAsync` - Persistencia exitosa
+- ✅ **UPS-007** `UpdateUserPolicyAsync` - Manejo de excepciones
 
 ### SubscriptionClient (100%)
-- ✅ `GetStatusAsync` - API URL vacía retorna fail-safe
-- ✅ `GetStatusAsync` - Retorna valor cacheado cuando existe
-- ✅ `GetStatusAsync` - Llamada exitosa a API externa
-- ✅ `GetStatusAsync` - Error HTTP retorna fail-safe
-- ✅ `GetStatusAsync` - Excepción de red retorna fail-safe
+- ✅ **SC-001** `GetStatusAsync` - API URL vacía retorna fail-safe
+- ✅ **SC-002** `GetStatusAsync` - Retorna valor cacheado cuando existe
+- ✅ **SC-003** `GetStatusAsync` - Llamada exitosa a API externa
+- ✅ **SC-004** `GetStatusAsync` - Error HTTP retorna fail-safe
+- ✅ **SC-005** `GetStatusAsync` - Excepción de red retorna fail-safe
 
 ### SubscriptionStatus Models (100%)
-- ✅ `IsExpired` - Detección de estado expirado
-- ✅ `IsExpiring` - Detección de estado por expirar
-- ✅ `IsCourtesy` - Detección de estado cortesía
-- ✅ `PlanInfo` - Propiedades de plan
+- ✅ **SS-001** `IsExpired` - Detección de estado expirado (case-insensitive)
+- ✅ **SS-002** `IsExpiring` - Detección de estado por expirar (case-insensitive)
+- ✅ **SS-003** `IsCourtesy` - Detección de estado cortesía (case-insensitive)
+- ✅ **SS-004** `PlanInfo` - Propiedades de plan
+
+## Formato de Documentación
+
+Cada prueba incluye comentarios XML con formato Given-When-Then:
+
+```csharp
+/// <summary>
+/// Test ID: UPS-001
+/// Given: A valid user with permissions
+/// When: GetUserPolicyAsync is called
+/// Then: Returns a UserPolicy with correct permissions
+/// </summary>
+[Fact]
+public async Task GetUserPolicyAsync_ValidUser_ReturnsPolicy()
+```
+
+### Convención de IDs
+- **UPS-XXX**: UserPolicyService tests
+- **SC-XXX**: SubscriptionClient tests  
+- **SS-XXX**: SubscriptionStatus model tests
 
 ## Tecnologías
 

@@ -27,6 +27,12 @@ public class UserPolicyServiceTests
         _service = new UserPolicyService(_userManagerMock.Object, _loggerMock.Object);
     }
 
+    /// <summary>
+    /// Test ID: UPS-001
+    /// Given: A valid user with permissions
+    /// When: GetUserPolicyAsync is called
+    /// Then: Returns a UserPolicy with correct permissions
+    /// </summary>
     [Fact]
     public async Task GetUserPolicyAsync_ValidUser_ReturnsPolicy()
     {
@@ -42,6 +48,12 @@ public class UserPolicyServiceTests
         result.EnableLiveTvAccess.Should().BeFalse();
     }
 
+    /// <summary>
+    /// Test ID: UPS-002
+    /// Given: A valid UserPolicy with library access settings
+    /// When: TrySetLibraryAccess is called with new folder IDs
+    /// Then: Updates policy and returns current values successfully
+    /// </summary>
     [Fact]
     public void TrySetLibraryAccess_ValidPolicy_UpdatesSuccessfully()
     {
@@ -68,6 +80,12 @@ public class UserPolicyServiceTests
         policy.EnabledFolders.Should().HaveCount(2);
     }
 
+    /// <summary>
+    /// Test ID: UPS-003
+    /// Given: A policy and folder IDs containing invalid GUID
+    /// When: TrySetLibraryAccess is called
+    /// Then: Logs warning for invalid GUID and processes valid ones
+    /// </summary>
     [Fact]
     public void TrySetLibraryAccess_InvalidGuid_LogsWarning()
     {
@@ -96,6 +114,12 @@ public class UserPolicyServiceTests
             Times.Once);
     }
 
+    /// <summary>
+    /// Test ID: UPS-004
+    /// Given: A policy with Live TV disabled
+    /// When: SetLiveTvAccess is called with true
+    /// Then: Enables both Live TV access and management
+    /// </summary>
     [Fact]
     public void SetLiveTvAccess_EnableTrue_SetsPermissions()
     {
@@ -114,6 +138,12 @@ public class UserPolicyServiceTests
         policy.EnableLiveTvManagement.Should().BeTrue();
     }
 
+    /// <summary>
+    /// Test ID: UPS-005
+    /// Given: A policy with Live TV enabled
+    /// When: SetLiveTvAccess is called with false
+    /// Then: Disables both Live TV access and management
+    /// </summary>
     [Fact]
     public void SetLiveTvAccess_EnableFalse_RemovesPermissions()
     {
@@ -132,6 +162,12 @@ public class UserPolicyServiceTests
         policy.EnableLiveTvManagement.Should().BeFalse();
     }
 
+    /// <summary>
+    /// Test ID: UPS-006
+    /// Given: A user and valid policy
+    /// When: UpdateUserPolicyAsync is called and succeeds
+    /// Then: Returns true and calls IUserManager.UpdatePolicyAsync
+    /// </summary>
     [Fact]
     public async Task UpdateUserPolicyAsync_Success_ReturnsTrue()
     {
@@ -150,6 +186,12 @@ public class UserPolicyServiceTests
         _userManagerMock.Verify(x => x.UpdatePolicyAsync(user.Id, policy), Times.Once);
     }
 
+    /// <summary>
+    /// Test ID: UPS-007
+    /// Given: A user and policy, but UpdatePolicyAsync throws exception
+    /// When: UpdateUserPolicyAsync is called
+    /// Then: Returns false and logs error
+    /// </summary>
     [Fact]
     public async Task UpdateUserPolicyAsync_ThrowsException_ReturnsFalse()
     {

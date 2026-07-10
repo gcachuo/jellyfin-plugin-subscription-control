@@ -33,6 +33,12 @@ public class SubscriptionClientTests
         _client = new SubscriptionClient(_cacheMock.Object, _httpClientFactoryMock.Object, _loggerMock.Object);
     }
 
+    /// <summary>
+    /// Test ID: SC-001
+    /// Given: Configuration with empty API URL
+    /// When: GetStatusAsync is called
+    /// Then: Returns fail-safe status without calling API
+    /// </summary>
     [Fact]
     public async Task GetStatusAsync_EmptyApiUrl_ReturnsFailSafe()
     {
@@ -50,6 +56,12 @@ public class SubscriptionClientTests
         result.Error.Should().Contain("API URL not configured");
     }
 
+    /// <summary>
+    /// Test ID: SC-002
+    /// Given: A cached subscription status exists
+    /// When: GetStatusAsync is called
+    /// Then: Returns cached value without calling API
+    /// </summary>
     [Fact]
     public async Task GetStatusAsync_CachedValue_ReturnsCached()
     {
@@ -76,6 +88,12 @@ public class SubscriptionClientTests
         result.Status.Should().Be("active");
     }
 
+    /// <summary>
+    /// Test ID: SC-003
+    /// Given: Valid API configuration and successful HTTP response
+    /// When: GetStatusAsync is called
+    /// Then: Returns deserialized subscription status with plan info
+    /// </summary>
     [Fact]
     public async Task GetStatusAsync_ApiSuccess_ReturnsStatus()
     {
@@ -134,6 +152,12 @@ public class SubscriptionClientTests
         result.Plan!.Id.Should().Be("basic");
     }
 
+    /// <summary>
+    /// Test ID: SC-004
+    /// Given: API returns HTTP 500 error
+    /// When: GetStatusAsync is called
+    /// Then: Returns fail-safe status with error message
+    /// </summary>
     [Fact]
     public async Task GetStatusAsync_ApiError_ReturnsFailSafe()
     {
@@ -177,6 +201,12 @@ public class SubscriptionClientTests
         result.Error.Should().Contain("API status 500");
     }
 
+    /// <summary>
+    /// Test ID: SC-005
+    /// Given: HTTP client throws network exception
+    /// When: GetStatusAsync is called
+    /// Then: Returns fail-safe status with exception message
+    /// </summary>
     [Fact]
     public async Task GetStatusAsync_HttpException_ReturnsFailSafe()
     {
