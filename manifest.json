@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-10T21:53:13.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "34943E56A9969806A2E321FD9A9C739D",
+        "version": "1.0.11.5",
+        "changelog": "🔄 Changes\r\n\r\n- Add summary log for sync results (updated vs ignored) and normalize folder ID comparison to prevent unnecessary updates.",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.11.5/EasyMovie.Plugin-1.0.11.5.zip"
+      },
+      {
         "timestamp": "2026-07-10T21:49:28.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "CF785036D2DAF327B1380DA87B982118",
