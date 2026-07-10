@@ -170,4 +170,4 @@ git commit -m "Update manifest for v${VERSION}"
 git push
 
 echo ""
-echo "✅ Release v${VERSION%.*} completado exitosamente!"
+echo "✅ Release v${VERSION} completado exitosamente!"
