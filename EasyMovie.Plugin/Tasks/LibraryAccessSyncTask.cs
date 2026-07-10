@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Models;
+using EasyMovie.Plugin.Services;
 using Jellyfin.Database.Implementations.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Tasks;
@@ -16,20 +16,20 @@ namespace EasyMovie.Plugin.Tasks;
 public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableScheduledTask
 {
     private readonly IUserManager _userManager;
-    private readonly ILibraryManager _libraryManager;
+    private readonly UserPolicyService _policyService;
     private readonly SubscriptionClient _subscriptionClient;
     private readonly ILogger<LibraryAccessSyncTask> _logger;
 
     public LibraryAccessSyncTask(
         IUserManager userManager,
-        ILibraryManager libraryManager,
+        UserPolicyService policyService,
         SubscriptionClient subscriptionClient,
-        ILogger<LibraryAccessSyncTask> logger)
+        ILogger<LibraryAccessSyncTask> _logger)
     {
         _userManager = userManager;
-        _libraryManager = libraryManager;
+        _policyService = policyService;
         _subscriptionClient = subscriptionClient;
-        _logger = logger;
+        this._logger = _logger;
     }
 
     public string Name => "EasyMovie: Sincronizar acceso a bibliotecas";
@@ -95,6 +95,8 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
 
     private async Task SyncUserLibraryAccessAsync(User user, Configuration.PluginConfiguration config, CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Processing user {User} (ID: {UserId})", user.Username, user.Id);
+        
         var status = await _subscriptionClient.GetStatusAsync(user, config, cancellationToken).ConfigureAwait(false);
         if (status.FailSafe)
         {
@@ -109,7 +111,9 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             return;
         }
 
-        var policy = await GetUserPolicyAsync(user, cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("Syncing library access for {User} (test mode: {TestMode})", user.Username, status.TestMode);
+
+        var policy = await _policyService.GetUserPolicyAsync(user).ConfigureAwait(false);
         if (policy is null)
         {
             _logger.LogWarning("User policy not found for {User}; skipping library access sync", user.Username);
@@ -124,7 +128,7 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         }
 
         // Apply library access
-        if (!TrySetLibraryAccess(policy, planInfo, out var currentEnableAll, out var currentFolders))
+        if (!_policyService.TrySetLibraryAccess(policy, planInfo.EnableAllFolders, planInfo.EnabledFolderIds ?? Array.Empty<string>(), out var currentEnableAll, out var currentFolders))
         {
             _logger.LogWarning("Failed to set library access for {User}", user.Username);
             return;
@@ -139,12 +143,19 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             return;
         }
 
-        await PersistUserPolicyAsync(user, policy, cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation(
-            "Library access updated for {User}: EnableAll={EnableAll}, Folders={Folders}",
-            user.Username,
-            planInfo.EnableAllFolders,
-            string.Join(", ", planInfo.EnabledFolderIds ?? Array.Empty<string>()));
+        var updated = await _policyService.UpdateUserPolicyAsync(user, policy).ConfigureAwait(false);
+        if (updated)
+        {
+            _logger.LogInformation(
+                "Library access updated for {User}: EnableAll={EnableAll}, Folders={Folders}",
+                user.Username,
+                planInfo.EnableAllFolders,
+                string.Join(", ", planInfo.EnabledFolderIds ?? Array.Empty<string>()));
+        }
+        else
+        {
+            _logger.LogWarning("Failed to persist library access changes for {User}", user.Username);
+        }
     }
 
     private static bool AreEqual(string[]? current, string[]? target)
@@ -155,212 +166,5 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         
         var currentSet = new HashSet<string>(current, StringComparer.OrdinalIgnoreCase);
         return target.All(id => currentSet.Contains(id));
-    }
-
-    private bool TrySetLibraryAccess(object policy, PlanInfo planInfo, out bool currentEnableAll, out string[]? currentFolders)
-    {
-        currentEnableAll = false;
-        currentFolders = null;
-
-        var policyType = policy.GetType();
-        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-        // Get EnableAllFolders property
-        var enableAllProp = policyType.GetProperty("EnableAllFolders", flags);
-        if (enableAllProp is null)
-        {
-            _logger.LogWarning("EnableAllFolders property not found on policy");
-            return false;
-        }
-
-        // Get EnabledFolders property
-        var enabledFoldersProp = policyType.GetProperty("EnabledFolders", flags);
-        if (enabledFoldersProp is null)
-        {
-            _logger.LogWarning("EnabledFolders property not found on policy");
-            return false;
-        }
-
-        // Read current values
-        currentEnableAll = enableAllProp.GetValue(policy) is bool currentBool && currentBool;
-        currentFolders = enabledFoldersProp.GetValue(policy) as string[];
-
-        // Set new values
-        enableAllProp.SetValue(policy, planInfo.EnableAllFolders);
-        enabledFoldersProp.SetValue(policy, planInfo.EnabledFolderIds ?? Array.Empty<string>());
-
-        return true;
-    }
-
-    private async Task PersistUserPolicyAsync(User user, object policy, CancellationToken cancellationToken)
-    {
-        var managerType = _userManager.GetType();
-        var methods = managerType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
-
-        var candidates = new (string Name, int Params, bool IncludePolicy, bool IncludeToken)[]
-        {
-            ("UpdateUserPolicyAsync", 3, true, true),
-            ("UpdateUserPolicyAsync", 2, true, false),
-            ("UpdateUserPolicy", 2, true, false),
-            ("UpdateUserAsync", 2, false, true),
-            ("UpdateUserAsync", 1, false, false),
-            ("UpdateUser", 1, false, false)
-        };
-
-        foreach (var candidate in candidates)
-        {
-            var method = methods.FirstOrDefault(m =>
-                m.Name == candidate.Name && m.GetParameters().Length == candidate.Params);
-            if (method is null) continue;
-
-            object?[] args = candidate switch
-            {
-                { IncludePolicy: true, IncludeToken: true } => new object?[] { user, policy, cancellationToken },
-                { IncludePolicy: true, IncludeToken: false } => new object?[] { user, policy },
-                { IncludePolicy: false, IncludeToken: true } => new object?[] { user, cancellationToken },
-                _ => new object?[] { user }
-            };
-
-            var result = method.Invoke(_userManager, args);
-            if (result is Task task)
-            {
-                await task.ConfigureAwait(false);
-            }
-            return;
-        }
-
-        _logger.LogWarning("Unable to persist library access policy for {User}; no compatible method found", user.Username);
-    }
-
-    private async Task<object?> GetUserPolicyAsync(User user, CancellationToken cancellationToken)
-    {
-        var policy = GetUserPolicyFromUser(user);
-        if (policy is not null)
-        {
-            return policy;
-        }
-
-        return await GetUserPolicyFromManagerAsync(user, cancellationToken).ConfigureAwait(false);
-    }
-
-    private static object? GetUserPolicyFromUser(User user)
-    {
-        var userType = user.GetType();
-        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        var property = userType.GetProperty("Policy", flags)
-            ?? userType.GetProperty("UserPolicy", flags);
-        if (property is not null)
-        {
-            var policy = property.GetValue(user);
-            return policy is not null && HasLibraryAccessProperties(policy) ? policy : null;
-        }
-
-        var field = userType.GetField("Policy", flags)
-            ?? userType.GetField("UserPolicy", flags);
-        var fieldPolicy = field?.GetValue(user);
-        return fieldPolicy is not null && HasLibraryAccessProperties(fieldPolicy) ? fieldPolicy : null;
-    }
-
-    private async Task<object?> GetUserPolicyFromManagerAsync(User user, CancellationToken cancellationToken)
-    {
-        var managerType = _userManager.GetType();
-        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-        var methods = managerType.GetMethods(flags)
-            .Where(method => method.Name.Contains("Policy", StringComparison.OrdinalIgnoreCase)
-                && method.Name.Contains("Get", StringComparison.OrdinalIgnoreCase)
-                && method.GetParameters().Length >= 1
-                && method.GetParameters().Length <= 2)
-            .OrderBy(method => method.Name.Contains("GetUserPolicy", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
-            .ToList();
-
-        foreach (var method in methods)
-        {
-            try
-            {
-                var parameters = method.GetParameters();
-                if (parameters.Length > 2)
-                {
-                    continue;
-                }
-
-                object?[] args = parameters.Length switch
-                {
-                    1 => new object?[] { user },
-                    2 => new object?[] { user, cancellationToken },
-                    _ => Array.Empty<object?>()
-                };
-
-                if (args.Length == 0)
-                {
-                    continue;
-                }
-
-                var result = method.Invoke(_userManager, args);
-                var unwrapped = await UnwrapAsyncResult(result).ConfigureAwait(false);
-                if (unwrapped is null)
-                {
-                    continue;
-                }
-
-                var policy = TryGetPolicyFromUserObject(unwrapped) ?? unwrapped;
-                if (policy is not null && HasLibraryAccessProperties(policy))
-                {
-                    return policy;
-                }
-            }
-            catch
-            {
-                continue;
-            }
-        }
-
-        return null;
-    }
-
-    private static object? TryGetPolicyFromUserObject(object userObject)
-    {
-        var userType = userObject.GetType();
-        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        var property = userType.GetProperty("Policy", flags)
-            ?? userType.GetProperty("UserPolicy", flags);
-        if (property is not null)
-        {
-            var policy = property.GetValue(userObject);
-            return policy is not null && HasLibraryAccessProperties(policy) ? policy : null;
-        }
-
-        var field = userType.GetField("Policy", flags)
-            ?? userType.GetField("UserPolicy", flags);
-        var fieldPolicy = field?.GetValue(userObject);
-        return fieldPolicy is not null && HasLibraryAccessProperties(fieldPolicy) ? fieldPolicy : null;
-    }
-
-    private static bool HasLibraryAccessProperties(object policy)
-    {
-        var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        var policyType = policy.GetType();
-        
-        var hasEnableAll = policyType.GetProperty("EnableAllFolders", flags) is not null;
-        var hasEnabledFolders = policyType.GetProperty("EnabledFolders", flags) is not null;
-        
-        return hasEnableAll && hasEnabledFolders;
-    }
-
-    private static async Task<object?> UnwrapAsyncResult(object? result)
-    {
-        if (result is null)
-        {
-            return null;
-        }
-
-        if (result is Task task)
-        {
-            await task.ConfigureAwait(false);
-            var resultProperty = task.GetType().GetProperty("Result");
-            return resultProperty?.GetValue(task);
-        }
-
-        return result;
     }
 }

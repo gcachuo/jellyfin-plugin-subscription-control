@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using EasyMovie.Plugin.Services;
 using MediaBrowser.Common.Api;
 using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +24,7 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
     private readonly SubscriptionClient _subscriptionClient;
     private readonly IUserManager _userManager;
     private readonly ILibraryManager _libraryManager;
+    private readonly UserPolicyService _policyService;
     private readonly HttpClient _httpClient;
     private readonly ILogger<EasyMovieSubscriptionController> _logger;
 
@@ -28,11 +32,13 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
         SubscriptionClient subscriptionClient,
         IUserManager userManager,
         ILibraryManager libraryManager,
+        UserPolicyService policyService,
         ILoggerFactory loggerFactory)
     {
         _subscriptionClient = subscriptionClient;
         _userManager = userManager;
         _libraryManager = libraryManager;
+        _policyService = policyService;
         _httpClient = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(10)
@@ -140,6 +146,76 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
             .ToList();
 
         return Ok(libraries);
+    }
+
+    [HttpPost("TestLibraryAccess")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> TestLibraryAccess(
+        [FromQuery] string username,
+        [FromQuery] bool enableAll,
+        [FromQuery] string? folderIds = null)
+    {
+        var user = _userManager.Users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+        if (user is null)
+        {
+            return NotFound(new { error = $"User '{username}' not found" });
+        }
+
+        try
+        {
+            var folderIdArray = string.IsNullOrWhiteSpace(folderIds)
+                ? Array.Empty<string>()
+                : folderIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            // Get current policy
+            var policy = await _policyService.GetUserPolicyAsync(user).ConfigureAwait(false);
+            if (policy is null)
+            {
+                return BadRequest(new { error = "Could not retrieve user policy" });
+            }
+
+            // Update library access
+            if (!_policyService.TrySetLibraryAccess(policy, enableAll, folderIdArray, out var currentEnableAll, out var currentFolders))
+            {
+                return BadRequest(new { error = "Failed to set library access properties" });
+            }
+
+            // Persist changes
+            var updated = await _policyService.UpdateUserPolicyAsync(user, policy).ConfigureAwait(false);
+            if (!updated)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Failed to persist policy changes" });
+            }
+
+            return Ok(new
+            {
+                username = user.Username,
+                userId = user.Id,
+                previous = new
+                {
+                    enableAllFolders = currentEnableAll,
+                    enabledFolders = currentFolders
+                },
+                updated = new
+                {
+                    enableAllFolders = enableAll,
+                    enabledFolders = folderIdArray
+                },
+                message = "Library access updated successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update library access for {User}", username);
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                error = ex.Message,
+                stackTrace = ex.StackTrace,
+                innerException = ex.InnerException?.Message
+            });
+        }
     }
 
     public sealed class LibraryDto
