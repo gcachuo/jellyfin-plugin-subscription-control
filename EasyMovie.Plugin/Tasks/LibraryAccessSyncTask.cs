@@ -24,12 +24,12 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         IUserManager userManager,
         UserPolicyService policyService,
         SubscriptionClient subscriptionClient,
-        ILogger<LibraryAccessSyncTask> _logger)
+        ILogger<LibraryAccessSyncTask> logger)
     {
         _userManager = userManager;
         _policyService = policyService;
         _subscriptionClient = subscriptionClient;
-        this._logger = _logger;
+        _logger = logger;
     }
 
     public string Name => "EasyMovie: Sincronizar acceso a bibliotecas";
@@ -48,9 +48,12 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
 
     public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
     {
-        // User can configure trigger from Jellyfin UI (Dashboard → Scheduled Tasks)
-        // Recommended: Run every 6-12 hours or daily
-        return Array.Empty<TaskTriggerInfo>();
+        // Run every 12 hours by default
+        yield return new TaskTriggerInfo
+        {
+            Type = TaskTriggerInfoType.IntervalTrigger,
+            IntervalTicks = TimeSpan.FromHours(12).Ticks
+        };
     }
 
     public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken)

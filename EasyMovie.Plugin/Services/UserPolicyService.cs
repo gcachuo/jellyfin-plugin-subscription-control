@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Jellyfin.Data;
 using Jellyfin.Data.Enums;
@@ -23,7 +22,7 @@ public sealed class UserPolicyService
         _logger = logger;
     }
 
-    public Task<object?> GetUserPolicyAsync(User user)
+    public Task<UserPolicy?> GetUserPolicyAsync(User user)
     {
         try
         {
@@ -50,55 +49,50 @@ public sealed class UserPolicyService
             };
 
             _logger.LogDebug("Successfully built UserPolicy for user {UserId}", user.Id);
-            return Task.FromResult<object?>(policy);
+            return Task.FromResult<UserPolicy?>(policy);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to build UserPolicy for user {UserId}", user.Id);
-            return Task.FromResult<object?>(null);
+            return Task.FromResult<UserPolicy?>(null);
         }
     }
 
-    public bool TrySetLibraryAccess(object policy, bool enableAllFolders, string[] enabledFolderIds, out bool currentEnableAll, out string[]? currentFolders)
+    public bool TrySetLibraryAccess(UserPolicy policy, bool enableAllFolders, string[] enabledFolderIds, out bool currentEnableAll, out string[]? currentFolders)
     {
         currentEnableAll = false;
         currentFolders = null;
 
-        if (policy is not UserPolicy userPolicy)
+        // Get current values
+        currentEnableAll = policy.EnableAllFolders;
+        currentFolders = policy.EnabledFolders?.Select(g => g.ToString()).ToArray();
+
+        // Convert string IDs to Guids with logging for invalid IDs
+        var folderGuids = new System.Collections.Generic.List<Guid>();
+        foreach (var id in enabledFolderIds)
         {
-            _logger.LogWarning("Policy is not a UserPolicy instance");
-            return false;
+            if (Guid.TryParse(id, out var guid))
+            {
+                folderGuids.Add(guid);
+            }
+            else
+            {
+                _logger.LogWarning("Invalid folder ID format: {FolderId}", id);
+            }
         }
 
-        // Get current values
-        currentEnableAll = userPolicy.EnableAllFolders;
-        currentFolders = userPolicy.EnabledFolders?.Select(g => g.ToString()).ToArray();
-
-        // Convert string IDs to Guids
-        var folderGuids = enabledFolderIds
-            .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
-            .Where(g => g.HasValue)
-            .Select(g => g!.Value)
-            .ToArray();
-
         // Set new values
-        userPolicy.EnableAllFolders = enableAllFolders;
-        userPolicy.EnabledFolders = folderGuids;
+        policy.EnableAllFolders = enableAllFolders;
+        policy.EnabledFolders = folderGuids.ToArray();
 
         return true;
     }
 
-    public async Task<bool> UpdateUserPolicyAsync(User user, object policy)
+    public async Task<bool> UpdateUserPolicyAsync(User user, UserPolicy policy)
     {
-        if (policy is not UserPolicy userPolicy)
-        {
-            _logger.LogWarning("Policy is not a UserPolicy instance");
-            return false;
-        }
-
         try
         {
-            await _userManager.UpdatePolicyAsync(user.Id, userPolicy).ConfigureAwait(false);
+            await _userManager.UpdatePolicyAsync(user.Id, policy).ConfigureAwait(false);
             _logger.LogDebug("Successfully updated policy for user {UserId}", user.Id);
             return true;
         }

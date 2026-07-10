@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EasyMovie.Plugin.Configuration;
 using EasyMovie.Plugin.Models;
 using Jellyfin.Database.Implementations.Entities;
+using MediaBrowser.Common.Net;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -19,11 +20,13 @@ public sealed class SubscriptionClient
     };
 
     private readonly IMemoryCache _cache;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<SubscriptionClient> _logger;
 
-    public SubscriptionClient(IMemoryCache cache, ILogger<SubscriptionClient> logger)
+    public SubscriptionClient(IMemoryCache cache, IHttpClientFactory httpClientFactory, ILogger<SubscriptionClient> logger)
     {
         _cache = cache;
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
@@ -43,13 +46,11 @@ public sealed class SubscriptionClient
 
         try
         {
-            // Create HttpClient with configured timeout
-            using var httpClient = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(config.ApiTimeoutSeconds)
-            };
-            
             var url = BuildUrl(config, user.Id.ToString("N"), user.Username);
+            
+            using var httpClient = _httpClientFactory.CreateClient(NamedClient.Default);
+            httpClient.Timeout = TimeSpan.FromSeconds(config.ApiTimeoutSeconds);
+            
             using var response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
