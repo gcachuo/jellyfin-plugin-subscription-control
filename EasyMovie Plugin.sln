@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMovie.Plugin", "EasyMov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMovie.Plugin.Tests", "EasyMovie.Plugin.Tests\EasyMovie.Plugin.Tests.csproj", "{14D5C29C-E292-4733-B15F-237F7B1C20EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMovie.Plugin.IntegrationTests", "EasyMovie.Plugin.IntegrationTests\EasyMovie.Plugin.IntegrationTests.csproj", "{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{14D5C29C-E292-4733-B15F-237F7B1C20EB}.Release|x64.Build.0 = Release|Any CPU
 		{14D5C29C-E292-4733-B15F-237F7B1C20EB}.Release|x86.ActiveCfg = Release|Any CPU
 		{14D5C29C-E292-4733-B15F-237F7B1C20EB}.Release|x86.Build.0 = Release|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Debug|x64.Build.0 = Debug|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Debug|x86.Build.0 = Debug|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Release|x64.ActiveCfg = Release|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Release|x64.Build.0 = Release|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Release|x86.ActiveCfg = Release|Any CPU
+		{E72F4F54-FC9A-4BFF-B7C0-58C44FAA8230}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
