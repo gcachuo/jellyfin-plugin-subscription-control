@@ -1,13 +1,13 @@
 {
   "category": "General",
-  "changelog": "🔄 Changes\r\n\r\n- Complete testing infrastructure with 55 tests, security verification, and automated release process",
+  "changelog": "🔄 Changes\r\n\r\n- Grant full access to trial users without plan. Users without a plan now get EnableAllFolders=true and LiveTV=true to evaluate the service. Restrictions only apply when they subscribe to a specific plan.",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
   "owner": "gcachuo",
   "targetAbi": "10.11.6.0",
-  "timestamp": "2026-07-10T18:44:10.0000000Z",
-  "version": "1.0.11.0",
+  "timestamp": "2026-07-10T19:03:39.0000000Z",
+  "version": "1.0.11.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": []
