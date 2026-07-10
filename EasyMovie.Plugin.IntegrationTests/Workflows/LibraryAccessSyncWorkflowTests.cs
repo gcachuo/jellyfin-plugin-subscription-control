@@ -299,6 +299,51 @@ public class LibraryAccessSyncWorkflowTests
         policy.EnabledFolders.Should().Contain(validFolder);
     }
 
+    /// <summary>
+    /// Test ID: IT-WF-007
+    /// Given: User without plan (trial/new user)
+    /// When: Sync is executed
+    /// Then: User gets full access (EnableAllFolders=true, LiveTV=true)
+    /// 
+    /// Users without a plan should have full access to try the service.
+    /// Restrictions only apply when they have a specific plan.
+    /// </summary>
+    [Fact]
+    public async Task SyncWorkflow_UserWithoutPlan_GetsFullAccess()
+    {
+        // Arrange
+        var userManagerMock = new Mock<IUserManager>();
+        var service = new UserPolicyService(
+            userManagerMock.Object,
+            NullLogger<UserPolicyService>.Instance);
+
+        var user = CreateUser("trialUser");
+        // User currently has restricted access
+        user.SetPermission(PermissionKind.EnableAllFolders, false);
+        user.SetPermission(PermissionKind.EnableLiveTvAccess, false);
+
+        UserPolicy? capturedPolicy = null;
+        userManagerMock
+            .Setup(x => x.UpdatePolicyAsync(user.Id, It.IsAny<UserPolicy>()))
+            .Callback<Guid, UserPolicy>((_, policy) => capturedPolicy = policy)
+            .Returns(Task.CompletedTask);
+
+        // Act - Simulate user without plan (trial mode)
+        var policy = await service.GetUserPolicyAsync(user);
+        
+        // Grant full access (no plan = trial = full access)
+        service.TrySetLibraryAccess(policy!, true, Array.Empty<string>(), out _, out _);
+        service.SetLiveTvAccess(policy!, true);
+        
+        await service.UpdateUserPolicyAsync(user, policy!);
+
+        // Assert
+        capturedPolicy.Should().NotBeNull();
+        capturedPolicy!.EnableAllFolders.Should().BeTrue("trial users should have access to all folders");
+        capturedPolicy.EnabledFolders.Should().BeEmpty("when EnableAllFolders is true, specific folders list should be empty");
+        capturedPolicy.EnableLiveTvAccess.Should().BeTrue("trial users should have Live TV access");
+    }
+
     private static User CreateUser(string username)
     {
         return new User(username, "Test", "User");

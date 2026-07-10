@@ -124,28 +124,43 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         }
 
         var planInfo = status.Plan;
-        if (planInfo is null)
-        {
-            _logger.LogDebug("No plan assigned to {User}; keeping current library access", user.Username);
-            return;
-        }
-
+        
         // Get current Live TV access
         var currentLiveTvAccess = policy.EnableLiveTvAccess;
+        
+        bool targetEnableAll;
+        string[] targetFolders;
+        bool targetLiveTv;
+        
+        if (planInfo is null)
+        {
+            // No plan = Trial/New user = Full access to everything
+            _logger.LogDebug("No plan assigned to {User}; granting full access (trial mode)", user.Username);
+            targetEnableAll = true;
+            targetFolders = Array.Empty<string>();
+            targetLiveTv = true;
+        }
+        else
+        {
+            // Has plan = Apply plan restrictions
+            targetEnableAll = planInfo.EnableAllFolders;
+            targetFolders = planInfo.EnabledFolderIds ?? Array.Empty<string>();
+            targetLiveTv = planInfo.AllowLiveTv;
+        }
 
         // Apply library access
-        if (!_policyService.TrySetLibraryAccess(policy, planInfo.EnableAllFolders, planInfo.EnabledFolderIds ?? Array.Empty<string>(), out var currentEnableAll, out var currentFolders))
+        if (!_policyService.TrySetLibraryAccess(policy, targetEnableAll, targetFolders, out var currentEnableAll, out var currentFolders))
         {
             _logger.LogWarning("Failed to set library access for {User}", user.Username);
             return;
         }
 
         // Apply Live TV access
-        _policyService.SetLiveTvAccess(policy, planInfo.AllowLiveTv);
+        _policyService.SetLiveTvAccess(policy, targetLiveTv);
 
-        var changed = currentEnableAll != planInfo.EnableAllFolders || 
-                      !AreEqual(currentFolders, planInfo.EnabledFolderIds) ||
-                      currentLiveTvAccess != planInfo.AllowLiveTv;
+        var changed = currentEnableAll != targetEnableAll || 
+                      !AreEqual(currentFolders, targetFolders) ||
+                      currentLiveTvAccess != targetLiveTv;
 
         if (!changed)
         {
@@ -159,9 +174,9 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             _logger.LogInformation(
                 "Access updated for {User}: EnableAll={EnableAll}, Folders={Folders}, LiveTV={LiveTV}",
                 user.Username,
-                planInfo.EnableAllFolders,
-                string.Join(", ", planInfo.EnabledFolderIds ?? Array.Empty<string>()),
-                planInfo.AllowLiveTv);
+                targetEnableAll,
+                string.Join(", ", targetFolders),
+                targetLiveTv);
         }
         else
         {
