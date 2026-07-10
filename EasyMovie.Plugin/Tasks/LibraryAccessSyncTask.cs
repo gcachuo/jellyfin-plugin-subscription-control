@@ -71,6 +71,8 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         var users = _userManager.Users.ToList();
         var totalUsers = users.Count;
         var processedUsers = 0;
+        var updatedUsers = 0;
+        var ignoredUsers = 0;
 
         foreach (var user in users)
         {
@@ -81,10 +83,19 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
 
             try
             {
-                await SyncUserLibraryAccessAsync(user, config, cancellationToken).ConfigureAwait(false);
+                var updated = await SyncUserLibraryAccessAsync(user, config, cancellationToken).ConfigureAwait(false);
+                if (updated)
+                {
+                    updatedUsers++;
+                }
+                else
+                {
+                    ignoredUsers++;
+                }
             }
             catch (Exception ex)
             {
+                ignoredUsers++;
                 _logger.LogError(ex, "Failed to sync library access for {User}", user.Username);
             }
 
@@ -92,11 +103,14 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             progress.Report((double)processedUsers / totalUsers * 100);
         }
 
-        _logger.LogInformation("Library access sync completed");
+        _logger.LogInformation(
+            "Library access sync completed. Updated: {Updated}, Ignored: {Ignored}",
+            updatedUsers,
+            ignoredUsers);
         progress.Report(100);
     }
 
-    private async Task SyncUserLibraryAccessAsync(User user, Configuration.PluginConfiguration config, CancellationToken cancellationToken)
+    private async Task<bool> SyncUserLibraryAccessAsync(User user, Configuration.PluginConfiguration config, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Processing user {User} (ID: {UserId})", user.Username, user.Id);
         
@@ -104,14 +118,14 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         if (status.FailSafe)
         {
             _logger.LogWarning("Skipping library access update for {User} due to fail-safe status", user.Username);
-            return;
+            return false;
         }
 
         // Check test mode
         if (status.TestMode && !status.TestUsers.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
         {
             _logger.LogDebug("Skipping {User} - not in test users list (test mode active)", user.Username);
-            return;
+            return false;
         }
 
         if (status.TestMode)
@@ -127,7 +141,7 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         if (policy is null)
         {
             _logger.LogWarning("User policy not found for {User}; skipping library access sync", user.Username);
-            return;
+            return false;
         }
 
         var planInfo = status.Plan;
@@ -168,14 +182,14 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         if (!changed)
         {
             _logger.LogDebug("Library and Live TV access for {User} is already up to date", user.Username);
-            return;
+            return false;
         }
 
         // Apply library access changes
         if (!_policyService.TrySetLibraryAccess(policy, targetEnableAll, targetFolders, out _, out _))
         {
             _logger.LogWarning("Failed to set library access for {User}", user.Username);
-            return;
+            return false;
         }
 
         // Apply Live TV access changes
@@ -190,11 +204,11 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
                 targetEnableAll,
                 string.Join(", ", targetFolders),
                 targetLiveTv);
+            return true;
         }
-        else
-        {
-            _logger.LogWarning("Failed to persist access changes for {User}", user.Username);
-        }
+        
+        _logger.LogWarning("Failed to persist access changes for {User}", user.Username);
+        return false;
     }
 
     private static bool AreEqual(string[]? current, string[]? target)

@@ -13,6 +13,10 @@ artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
   ## 1.0.11
+  - Add summary log for sync results (updated vs ignored) and normalize folder ID comparison to prevent unnecessary updates.
+  
+
+  ## 1.0.11
   - Fix folder ID comparison to avoid unnecessary access updates. Normalize GUIDs before comparing so policies only update when truly different.
   
 
