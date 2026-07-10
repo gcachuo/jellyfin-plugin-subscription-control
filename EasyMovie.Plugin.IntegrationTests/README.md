@@ -62,6 +62,15 @@ dotnet test EasyMovie.Plugin.IntegrationTests --filter "FullyQualifiedName~Trial
 - ✅ **REG-005** EnableAllFolders debe ser false para usuario trial
 - ✅ **REG-006** Usuario trial sin carpetas no tiene acceso
 
+### End-to-End Regression Tests (5 tests) 🌐 API REAL
+- ✅ **E2E-REG-001** Flujo completo con API real de producción
+- ✅ **E2E-REG-002** Estructura de respuesta de API válida
+- ✅ **E2E-REG-003** Consistencia de respuestas de API
+- ✅ **E2E-REG-004** Fail-safe con timeouts reales
+- ✅ **E2E-REG-005** GUIDs de carpetas son válidos
+
+**Nota**: Los tests end-to-end se saltan automáticamente si no se configura `EASYMOVIE_API_URL`
+
 ## Formato de Documentación
 
 Cada prueba incluye comentarios XML con formato Given-When-Then:
@@ -199,4 +208,5 @@ dotnet test EasyMovie.Plugin.IntegrationTests --filter "FullyQualifiedName~Regre
 - Tests son independientes y pueden ejecutarse en paralelo
 - Cache se limpia entre tests para evitar interferencia
 - Tiempo de ejecución: ~3-4 segundos
-- **18 pruebas de integración en total** (6 API + 6 Workflow + 6 Regression)
+- **23 pruebas de integración en total** (6 API + 6 Workflow + 6 Regression + 5 E2E Regression)
+- Tests E2E se saltan automáticamente sin configuración de API

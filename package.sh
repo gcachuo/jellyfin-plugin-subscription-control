@@ -56,7 +56,7 @@ if [ $UNIT_TEST_RESULT -ne 0 ] || [ $INTEGRATION_TEST_RESULT -ne 0 ]; then
 fi
 
 echo ""
-echo "✅ All tests passed (46 tests total: 28 unit + 18 integration)!"
+echo "✅ All tests passed (51 tests total: 28 unit + 23 integration)!"
 echo ""
 
 # Verificar que existe el directorio de build
