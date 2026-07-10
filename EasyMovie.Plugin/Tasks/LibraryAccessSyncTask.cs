@@ -155,16 +155,12 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             targetLiveTv = planInfo.AllowLiveTv;
         }
 
-        // Apply library access
-        if (!_policyService.TrySetLibraryAccess(policy, targetEnableAll, targetFolders, out var currentEnableAll, out var currentFolders))
-        {
-            _logger.LogWarning("Failed to set library access for {User}", user.Username);
-            return;
-        }
-
-        // Apply Live TV access
-        _policyService.SetLiveTvAccess(policy, targetLiveTv);
-
+        // Get current access settings
+        var currentEnableAll = policy.EnableAllFolders;
+        var currentFolderGuids = policy.EnabledFolders ?? Array.Empty<Guid>();
+        var currentFolders = currentFolderGuids.Select(g => g.ToString()).ToArray();
+        
+        // Check if changes are needed
         var changed = currentEnableAll != targetEnableAll || 
                       !AreEqual(currentFolders, targetFolders) ||
                       currentLiveTvAccess != targetLiveTv;
@@ -174,6 +170,16 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             _logger.LogDebug("Library and Live TV access for {User} is already up to date", user.Username);
             return;
         }
+
+        // Apply library access changes
+        if (!_policyService.TrySetLibraryAccess(policy, targetEnableAll, targetFolders, out _, out _))
+        {
+            _logger.LogWarning("Failed to set library access for {User}", user.Username);
+            return;
+        }
+
+        // Apply Live TV access changes
+        _policyService.SetLiveTvAccess(policy, targetLiveTv);
 
         var updated = await _policyService.UpdateUserPolicyAsync(user, policy).ConfigureAwait(false);
         if (updated)
