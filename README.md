@@ -163,8 +163,11 @@ dotnet test --logger "console;verbosity=detailed"
 
 **Test Coverage:**
 - ✅ 28 unit tests - Core business logic
-- ✅ 12 integration tests - Complete workflows
-- ✅ 40 total tests - All passing
+- ✅ 18 integration tests - Complete workflows + Regression
+  - 6 API integration tests
+  - 6 Workflow tests
+  - 6 Regression tests (critical business rules)
+- ✅ **46 total tests** - All passing
 - ✅ Given-When-Then documentation
 
 See [EasyMovie.Plugin.Tests/README.md](EasyMovie.Plugin.Tests/README.md) and [EasyMovie.Plugin.IntegrationTests/README.md](EasyMovie.Plugin.IntegrationTests/README.md) for details.
@@ -184,11 +187,24 @@ chmod +x package.sh
 
 The packaging script will:
 1. 🔨 Build the plugin in Release mode
-2. 🧪 Run all 40 tests (unit + integration)
+2. 🧪 Run all 46 tests (28 unit + 18 integration)
 3. 📦 Create `EasyMovie.Plugin-x.x.x.x.zip` only if tests pass
 4. 📊 Display MD5 checksum for manifest
 
 **Note:** Package creation is blocked if any test fails, ensuring quality releases.
+
+#### Regression Tests
+
+The plugin includes 6 critical regression tests that verify trial user restrictions:
+- Trial users can only access 2 specific folders
+- Trial users cannot access premium content
+- Trial users have no Live TV access
+- EnableAllFolders is always false for trial users
+
+Run regression tests separately:
+```bash
+dotnet test EasyMovie.Plugin.IntegrationTests --filter "FullyQualifiedName~Regression"
+```
 
 ## Contributing
 

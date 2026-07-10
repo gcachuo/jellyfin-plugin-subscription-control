@@ -8,8 +8,10 @@ Pruebas de integración para el plugin EasyMovie Subscription Control de Jellyfi
 EasyMovie.Plugin.IntegrationTests/
 ├── Api/
 │   └── SubscriptionClientIntegrationTests.cs    # Tests con HTTP real (WireMock)
-└── Workflows/
-    └── LibraryAccessSyncWorkflowTests.cs        # Tests de flujos completos
+├── Workflows/
+│   └── LibraryAccessSyncWorkflowTests.cs        # Tests de flujos completos
+└── Regression/
+    └── TrialUserRegressionTests.cs              # Tests de regresión críticos
 ```
 
 ## Ejecutar Pruebas
@@ -27,6 +29,11 @@ dotnet test EasyMovie.Plugin.IntegrationTests --logger "console;verbosity=detail
 ### Ejecutar todas las pruebas (unitarias + integración)
 ```bash
 dotnet test
+```
+
+### Ejecutar solo pruebas de regresión
+```bash
+dotnet test EasyMovie.Plugin.IntegrationTests --filter "FullyQualifiedName~TrialUserRegressionTests"
 ```
 
 ## Cobertura de Pruebas
@@ -47,6 +54,14 @@ dotnet test
 - ✅ **IT-WF-005** Sincronización completa de plan básico
 - ✅ **IT-WF-006** Manejo de GUIDs mixtos (válidos/inválidos)
 
+### Trial User Regression Tests (6 tests) 🔴 CRÍTICO
+- ✅ **REG-001** Usuario trial con plan básico tiene acceso restringido
+- ✅ **REG-002** Usuario trial NO puede acceder a carpetas restringidas
+- ✅ **REG-003** Acceso a Live TV removido para usuario trial
+- ✅ **REG-004** Fallo en actualización de política reportado correctamente
+- ✅ **REG-005** EnableAllFolders debe ser false para usuario trial
+- ✅ **REG-006** Usuario trial sin carpetas no tiene acceso
+
 ## Formato de Documentación
 
 Cada prueba incluye comentarios XML con formato Given-When-Then:
@@ -65,6 +80,7 @@ public async Task GetStatusAsync_ValidApiResponse_ParsesCorrectly()
 ### Convención de IDs
 - **IT-SC-XXX**: SubscriptionClient integration tests
 - **IT-WF-XXX**: Workflow integration tests
+- **REG-XXX**: Regression tests (critical business rules)
 
 ## Tecnologías
 
@@ -149,10 +165,38 @@ Las pruebas de integración se ejecutan:
 - Antes de crear releases
 - En pull requests
 
+## Pruebas de Regresión
+
+Las pruebas de regresión verifican **reglas de negocio críticas** que nunca deben romperse:
+
+### ¿Por qué son importantes?
+
+1. **Protección contra bugs críticos**: Verifican que usuarios trial no puedan acceder a contenido premium
+2. **Seguridad del negocio**: Aseguran que las restricciones de plan se mantengan
+3. **Detección temprana**: Fallan inmediatamente si se introduce un bug que permita acceso no autorizado
+4. **Documentación viva**: Describen exactamente qué debe y no debe poder hacer un usuario trial
+
+### Escenarios Críticos Cubiertos
+
+- ✅ Usuario trial solo accede a 2 carpetas específicas (Películas y Series en Español)
+- ✅ Usuario trial NO puede acceder a contenido premium (English, 4K, Anime)
+- ✅ Usuario trial NO tiene acceso a Live TV
+- ✅ EnableAllFolders siempre es `false` para usuarios trial
+- ✅ Lista vacía de carpetas = sin acceso a contenido
+
+### Ejecutar Solo Regresión
+
+```bash
+# Ejecutar solo tests de regresión (rápido, ~2 segundos)
+dotnet test EasyMovie.Plugin.IntegrationTests --filter "FullyQualifiedName~Regression"
+```
+
+**Recomendación**: Ejecutar tests de regresión antes de cada commit que modifique lógica de permisos.
+
 ## Notas
 
 - WireMock crea un servidor HTTP real en puerto aleatorio
 - Tests son independientes y pueden ejecutarse en paralelo
 - Cache se limpia entre tests para evitar interferencia
-- Tiempo de ejecución: ~3 segundos
-- 12 pruebas de integración en total
+- Tiempo de ejecución: ~3-4 segundos
+- **18 pruebas de integración en total** (6 API + 6 Workflow + 6 Regression)
