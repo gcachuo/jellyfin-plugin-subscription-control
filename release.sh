@@ -51,14 +51,62 @@ sed -i "/^changelog: |-$/a\\${CHANGELOG_ENTRY}" build.yaml
 echo "✅ build.yaml actualizado"
 echo ""
 
-# Compilar
-echo "🔨 Compilando..."
-export PATH="$HOME/.dotnet:$PATH"
-dotnet build EasyMovie.Plugin/EasyMovie.Plugin.csproj -c Release
+# CRITICAL: Verificar configuración de seguridad
+echo "� CRITICAL: Verificando configuración de seguridad..."
+echo ""
 
-# Empaquetar
-echo "📦 Empaquetando..."
+# Verificar plans.json local
+if [ -f "/mnt/f/PhpStormProjects/EasyMovie/api/plans.json" ]; then
+    echo "📋 Verificando plans.json local..."
+    export PLANS_JSON_PATH="/mnt/f/PhpStormProjects/EasyMovie/api/plans.json"
+    dotnet test EasyMovie.Plugin.IntegrationTests --filter "FullyQualifiedName~PlansConfigRegressionTests" --logger "console;verbosity=minimal"
+    
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "❌ CRITICAL: plans.json local tiene test_mode activado!"
+        echo "   Debes desactivar test_mode antes de hacer release."
+        echo "   Edita: /mnt/f/PhpStormProjects/EasyMovie/api/plans.json"
+        echo "   Cambia: test_mode: false, test_users: []"
+        exit 1
+    fi
+    echo "✅ plans.json local verificado"
+else
+    echo "⚠️  Warning: No se encontró plans.json local, saltando verificación"
+fi
+
+# Verificar API de producción (opcional pero recomendado)
+if [ ! -z "$EASYMOVIE_API_URL" ]; then
+    echo ""
+    echo "🌐 Verificando API de producción..."
+    dotnet test EasyMovie.Plugin.IntegrationTests --filter "E2E_ProductionAPI_MustNotBeInTestMode" --logger "console;verbosity=minimal"
+    
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "❌ CRITICAL: API de producción tiene test_mode activado!"
+        echo "   Debes actualizar el servidor antes de hacer release."
+        echo "   Ver: RELEASE-CHECKLIST.md"
+        exit 1
+    fi
+    echo "✅ API de producción verificada"
+else
+    echo "⚠️  Warning: EASYMOVIE_API_URL no configurada, saltando verificación de API"
+    echo "   Para verificar: export EASYMOVIE_API_URL=\"https://easymovie.lat/subscriptions/api/subscription.php\""
+fi
+
+echo ""
+echo "✅ Todas las verificaciones de seguridad pasaron"
+echo ""
+
+# Compilar y empaquetar (esto ejecuta todos los tests automáticamente)
+echo "📦 Ejecutando package.sh (incluye build + 55 tests)..."
 ./package.sh
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Package.sh falló! No se puede continuar con el release."
+    echo "   Revisa los errores arriba."
+    exit 1
+fi
 
 # Obtener checksum
 CHECKSUM=$(grep -oP 'MD5 Checksum: \K[A-F0-9]+' <<< "$(./package.sh 2>&1)" || md5sum "EasyMovie.Plugin-${VERSION}.zip" | awk '{print toupper($1)}')

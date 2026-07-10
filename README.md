@@ -176,10 +176,28 @@ See [EasyMovie.Plugin.Tests/README.md](EasyMovie.Plugin.Tests/README.md) and [Ea
 
 ### Creating a Release Package
 
-**Windows (PowerShell):**
-```powershell
-.\package.ps1
+#### Option 1: Full Automated Release (Recommended)
+
+```bash
+# Update VERSION in package.sh first
+nano package.sh  # Change VERSION="1.0.11.0"
+
+# Run automated release script
+./release.sh "Your changelog message here"
 ```
+
+**The script will automatically:**
+1. 🔴 Verify test_mode is disabled (local + production)
+2. 🔨 Build the plugin in Release mode
+3. 🧪 Run all 55 tests (28 unit + 27 integration)
+4. 📦 Create ZIP package
+5. 🚀 Create GitHub release
+6. 📝 Update manifest.json
+7. 📤 Commit and push everything
+
+**If any security check fails, the release is blocked.**
+
+#### Option 2: Manual Package Only
 
 **Linux/WSL:**
 ```bash
@@ -189,7 +207,7 @@ chmod +x package.sh
 
 The packaging script will:
 1. 🔨 Build the plugin in Release mode
-2. 🧪 Run all 52 tests (28 unit + 24 integration)
+2. 🧪 Run all 55 tests (28 unit + 27 integration)
 3. 📦 Create `EasyMovie.Plugin-x.x.x.x.zip` only if tests pass
 4. 📊 Display MD5 checksum for manifest
 
