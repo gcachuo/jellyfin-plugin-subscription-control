@@ -18,7 +18,6 @@ public sealed class SubscriptionClient
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
     private readonly ILogger<SubscriptionClient> _logger;
 
@@ -26,7 +25,6 @@ public sealed class SubscriptionClient
     {
         _cache = cache;
         _logger = logger;
-        _httpClient = new HttpClient();
     }
 
     public async Task<SubscriptionStatus> GetStatusAsync(User user, PluginConfiguration config, CancellationToken cancellationToken)
@@ -45,11 +43,14 @@ public sealed class SubscriptionClient
 
         try
         {
-            // Set timeout from config
-            _httpClient.Timeout = TimeSpan.FromSeconds(config.ApiTimeoutSeconds);
+            // Create HttpClient with configured timeout
+            using var httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(config.ApiTimeoutSeconds)
+            };
             
             var url = BuildUrl(config, user.Id.ToString("N"), user.Username);
-            using var response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            using var response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return CreateFailSafe($"API status {(int)response.StatusCode}");
