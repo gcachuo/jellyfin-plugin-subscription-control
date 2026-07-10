@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-10T20:06:49.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "D510B986C943A8BC5377E87EBECAF2C8",
+        "version": "1.0.11.3",
+        "changelog": "🔄 Changes\r\n\r\n- Performance improvements: Skip unnecessary policy updates and reduce log noise. Only updates database when access actually changes. Test mode logging only shown when active.",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.11.3/EasyMovie.Plugin-1.0.11.3.zip"
+      },
+      {
         "timestamp": "2026-07-10T19:06:56.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "BD23942054577E752EBC7E36C3C7A9B2",
