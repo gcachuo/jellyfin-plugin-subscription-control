@@ -299,6 +299,14 @@ public class TrialUserEndToEndRegressionTests : IDisposable
 
         // Assert - CRITICAL SECURITY CHECK
         status.Should().NotBeNull();
+        
+        // CRITICAL: API must be reachable when testing production
+        status.FailSafe.Should().BeFalse(
+            "CRITICAL: Cannot verify testMode because API is not reachable! " +
+            "Fail-safe mode is active. Check API URL and network connectivity. " +
+            "This test MUST connect to real API to verify testMode is disabled.");
+        
+        // CRITICAL: TestMode must be false in production
         status.TestMode.Should().BeFalse(
             "CRITICAL: Production API must NOT be in test mode! " +
             "Test mode allows unauthorized users to bypass subscription restrictions. " +
