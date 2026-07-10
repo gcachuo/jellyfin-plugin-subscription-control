@@ -12,6 +12,10 @@ category: 'General'
 artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
+  ## 1.0.11
+  - Complete testing infrastructure with 55 tests, security verification, and automated release process
+  
+
   ## 1.0.10.1
   - Timeout API configurable desde UI (default 30s)
   
