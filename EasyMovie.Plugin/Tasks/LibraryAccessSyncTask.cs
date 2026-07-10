@@ -114,7 +114,14 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             return;
         }
 
-        _logger.LogInformation("Syncing library access for {User} (test mode: {TestMode})", user.Username, status.TestMode);
+        if (status.TestMode)
+        {
+            _logger.LogInformation("Syncing library access for {User} (test mode active)", user.Username);
+        }
+        else
+        {
+            _logger.LogDebug("Syncing library access for {User}", user.Username);
+        }
 
         var policy = await _policyService.GetUserPolicyAsync(user).ConfigureAwait(false);
         if (policy is null)
