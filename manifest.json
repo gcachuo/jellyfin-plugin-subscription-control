@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-10T18:44:31.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "D18A3681F3D06970A3BEC69CC82E4088",
+        "version": "1.0.11.0",
+        "changelog": "🔄 Changes\r\n\r\n- Complete testing infrastructure with 55 tests, security verification, and automated release process",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.11/EasyMovie.Plugin-1.0.11.0.zip"
+      },
+      {
         "timestamp": "2026-07-10T01:03:00.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "E66E40AE73394DBF7A0A9B1835E45BD0",
