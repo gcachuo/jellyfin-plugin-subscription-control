@@ -130,6 +130,9 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             return;
         }
 
+        // Get current Live TV access
+        var currentLiveTvAccess = policy.EnableLiveTvAccess;
+
         // Apply library access
         if (!_policyService.TrySetLibraryAccess(policy, planInfo.EnableAllFolders, planInfo.EnabledFolderIds ?? Array.Empty<string>(), out var currentEnableAll, out var currentFolders))
         {
@@ -137,12 +140,16 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
             return;
         }
 
+        // Apply Live TV access
+        _policyService.SetLiveTvAccess(policy, planInfo.AllowLiveTv);
+
         var changed = currentEnableAll != planInfo.EnableAllFolders || 
-                      !AreEqual(currentFolders, planInfo.EnabledFolderIds);
+                      !AreEqual(currentFolders, planInfo.EnabledFolderIds) ||
+                      currentLiveTvAccess != planInfo.AllowLiveTv;
 
         if (!changed)
         {
-            _logger.LogDebug("Library access for {User} is already up to date", user.Username);
+            _logger.LogDebug("Library and Live TV access for {User} is already up to date", user.Username);
             return;
         }
 
@@ -150,14 +157,15 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         if (updated)
         {
             _logger.LogInformation(
-                "Library access updated for {User}: EnableAll={EnableAll}, Folders={Folders}",
+                "Access updated for {User}: EnableAll={EnableAll}, Folders={Folders}, LiveTV={LiveTV}",
                 user.Username,
                 planInfo.EnableAllFolders,
-                string.Join(", ", planInfo.EnabledFolderIds ?? Array.Empty<string>()));
+                string.Join(", ", planInfo.EnabledFolderIds ?? Array.Empty<string>()),
+                planInfo.AllowLiveTv);
         }
         else
         {
-            _logger.LogWarning("Failed to persist library access changes for {User}", user.Username);
+            _logger.LogWarning("Failed to persist access changes for {User}", user.Username);
         }
     }
 

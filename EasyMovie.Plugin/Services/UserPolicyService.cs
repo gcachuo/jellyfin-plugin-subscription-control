@@ -88,6 +88,13 @@ public sealed class UserPolicyService
         return true;
     }
 
+    public void SetLiveTvAccess(UserPolicy policy, bool allowLiveTv)
+    {
+        policy.EnableLiveTvAccess = allowLiveTv;
+        policy.EnableLiveTvManagement = allowLiveTv;
+        _logger.LogDebug("Set Live TV access to {AllowLiveTv}", allowLiveTv);
+    }
+
     public async Task<bool> UpdateUserPolicyAsync(User user, UserPolicy policy)
     {
         try

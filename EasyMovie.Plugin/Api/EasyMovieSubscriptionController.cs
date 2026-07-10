@@ -155,7 +155,8 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
     public async Task<IActionResult> TestLibraryAccess(
         [FromQuery] string username,
         [FromQuery] bool enableAll,
-        [FromQuery] string? folderIds = null)
+        [FromQuery] string? folderIds = null,
+        [FromQuery] bool? allowLiveTv = null)
     {
         var user = _userManager.Users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         if (user is null)
@@ -176,10 +177,19 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
                 return BadRequest(new { error = "Could not retrieve user policy" });
             }
 
+            // Get current values
+            var currentLiveTv = policy.EnableLiveTvAccess;
+
             // Update library access
             if (!_policyService.TrySetLibraryAccess(policy, enableAll, folderIdArray, out var currentEnableAll, out var currentFolders))
             {
                 return BadRequest(new { error = "Failed to set library access properties" });
+            }
+
+            // Update Live TV access if specified
+            if (allowLiveTv.HasValue)
+            {
+                _policyService.SetLiveTvAccess(policy, allowLiveTv.Value);
             }
 
             // Persist changes
@@ -196,14 +206,16 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
                 previous = new
                 {
                     enableAllFolders = currentEnableAll,
-                    enabledFolders = currentFolders
+                    enabledFolders = currentFolders,
+                    liveTvAccess = currentLiveTv
                 },
                 updated = new
                 {
                     enableAllFolders = enableAll,
-                    enabledFolders = folderIdArray
+                    enabledFolders = folderIdArray,
+                    liveTvAccess = allowLiveTv ?? currentLiveTv
                 },
-                message = "Library access updated successfully"
+                message = "Access updated successfully"
             });
         }
         catch (Exception ex)
