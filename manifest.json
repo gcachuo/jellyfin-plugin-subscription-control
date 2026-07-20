@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-20T19:00:42.000Z",
+        "targetAbi": "10.11.6.0",
+        "checksum": "E14E90E34E1527F1E67CEF16DE5731AF",
+        "version": "1.0.12.0",
+        "changelog": "🔄 Changes\r\n\r\n- Fix compatibility with Jellyfin 10.11.11 (IUserManager.Users removal).",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.12.0/EasyMovie.Plugin-1.0.12.0.zip"
+      },
+      {
         "timestamp": "2026-07-10T21:53:13.000Z",
         "targetAbi": "10.11.6.0",
         "checksum": "34943E56A9969806A2E321FD9A9C739D",
