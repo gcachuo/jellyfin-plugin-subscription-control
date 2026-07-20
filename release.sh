@@ -129,8 +129,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Obtener checksum
-CHECKSUM=$(grep -oP 'MD5 Checksum: \K[A-F0-9]+' <<< "$(./package.sh 2>&1)" || md5sum "EasyMovie.Plugin-${VERSION}.zip" | awk '{print toupper($1)}')
+# Obtener checksum del ZIP generado
+CHECKSUM=$(md5sum "EasyMovie.Plugin-${VERSION}.zip" | awk '{print toupper($1)}')
 
 echo "🔐 Checksum: $CHECKSUM"
 
