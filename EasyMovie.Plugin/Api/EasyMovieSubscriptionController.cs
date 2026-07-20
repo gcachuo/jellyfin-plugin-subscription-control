@@ -102,7 +102,7 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
         }
 
         var results = new List<UserStatusDto>();
-        foreach (var user in _userManager.Users)
+        foreach (var user in UserManagerCompat.GetUsers(_userManager))
         {
             var status = await _subscriptionClient.GetStatusAsync(user, config, CancellationToken.None).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(status.Status))
@@ -158,7 +158,7 @@ public sealed class EasyMovieSubscriptionController : ControllerBase
         [FromQuery] string? folderIds = null,
         [FromQuery] bool? allowLiveTv = null)
     {
-        var user = _userManager.Users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+        var user = UserManagerCompat.GetUsers(_userManager).FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         if (user is null)
         {
             return NotFound(new { error = $"User '{username}' not found" });

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Models;
+using EasyMovie.Plugin.Services;
 using Jellyfin.Database.Implementations.Entities;
 using MediaBrowser.Controller.Library;
 using Microsoft.Extensions.Hosting;
@@ -66,7 +67,7 @@ public sealed class LiveTvPolicySyncService : BackgroundService
             return;
         }
 
-        foreach (var user in _userManager.Users)
+        foreach (var user in UserManagerCompat.GetUsers(_userManager))
         {
             if (cancellationToken.IsCancellationRequested)
             {

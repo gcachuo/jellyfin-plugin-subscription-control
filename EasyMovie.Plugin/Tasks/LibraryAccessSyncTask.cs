@@ -68,7 +68,7 @@ public sealed class LibraryAccessSyncTask : IScheduledTask, IConfigurableSchedul
         _logger.LogInformation("Starting library access sync");
         progress.Report(0);
 
-        var users = _userManager.Users.ToList();
+        var users = UserManagerCompat.GetUsers(_userManager).ToList();
         var totalUsers = users.Count;
         var processedUsers = 0;
         var updatedUsers = 0;
