@@ -16,10 +16,10 @@ CHANGELOG="$1"
 # Leer la versión actual del package.sh
 VERSION=$(grep -oP 'VERSION="\K[^"]+' package.sh)
 
-# Leer targetAbi actual desde meta.json
-TARGET_ABI=$(grep -oP '"targetAbi"\s*:\s*"\K[^"]+' EasyMovie.Plugin/meta.json)
+# Leer targetAbi actual desde package.sh
+TARGET_ABI=$(grep -oP 'TARGET_ABI="\K[^"]+' package.sh)
 if [ -z "$TARGET_ABI" ]; then
-    echo "❌ Error: No se pudo leer targetAbi desde EasyMovie.Plugin/meta.json"
+    echo "❌ Error: No se pudo leer targetAbi desde package.sh"
     exit 1
 fi
 
