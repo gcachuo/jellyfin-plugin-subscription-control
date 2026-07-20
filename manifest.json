@@ -10,7 +10,7 @@
     "versions": [
       {
         "timestamp": "2026-07-20T19:02:19.000Z",
-        "targetAbi": "10.11.6.0",
+        "targetAbi": "10.11.11.0",
         "checksum": "DE1C440F232FF7DB1087A8A41DC3D4C9",
         "version": "1.0.12.0",
         "changelog": "🔄 Changes\r\n\r\n- Fix compatibility with Jellyfin 10.11.11 (IUserManager.Users removal).",
