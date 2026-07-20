@@ -12,6 +12,10 @@ category: 'General'
 artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
+  ## 1.0.12
+  - Fix compatibility with Jellyfin 10.11.11 (IUserManager.Users removal).
+  
+
   ## 1.0.11
   - Add summary log for sync results (updated vs ignored) and normalize folder ID comparison to prevent unnecessary updates.
   
