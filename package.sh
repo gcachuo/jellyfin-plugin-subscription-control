@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="1.0.11.5"
+VERSION="1.0.12.0"
 BUILD_DIR="EasyMovie.Plugin/bin/Release/net9.0"
 PACKAGE_NAME="EasyMovie.Plugin-${VERSION}.zip"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.0000000Z")

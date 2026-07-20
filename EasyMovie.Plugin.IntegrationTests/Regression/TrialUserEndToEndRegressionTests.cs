@@ -107,8 +107,12 @@ public class TrialUserEndToEndRegressionTests : IDisposable
 
         // Apply plan restrictions
         var policy = await _policyService.GetUserPolicyAsync(trialUser);
+        if (policy is null)
+        {
+            throw new Xunit.Sdk.XunitException("User policy is null");
+        }
         _policyService.TrySetLibraryAccess(
-            policy!,
+            policy,
             status.Plan.EnableAllFolders,
             status.Plan.EnabledFolderIds ?? Array.Empty<string>(),
             out _,
