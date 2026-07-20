@@ -1,6 +1,7 @@
 #!/bin/bash
 
 VERSION="1.0.12.0"
+TARGET_ABI="10.11.11.0"
 BUILD_DIR="EasyMovie.Plugin/bin/Release/net9.0"
 PACKAGE_NAME="EasyMovie.Plugin-${VERSION}.zip"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.0000000Z")
@@ -18,9 +19,11 @@ sed -i "s/<Version>.*<\/Version>/<Version>${VERSION}<\/Version>/" EasyMovie.Plug
 # Update meta.json
 sed -i "s/\"version\": \".*\"/\"version\": \"${VERSION}\"/" EasyMovie.Plugin/meta.json
 sed -i "s/\"timestamp\": \".*\"/\"timestamp\": \"${TIMESTAMP}\"/" EasyMovie.Plugin/meta.json
+sed -i "s/\"targetAbi\": \".*\"/\"targetAbi\": \"${TARGET_ABI}\"/" EasyMovie.Plugin/meta.json
 
 # Update build.yaml
 sed -i "s/version: '.*'/version: '${VERSION}'/" build.yaml
+sed -i "s/targetAbi: '.*'/targetAbi: '${TARGET_ABI}'/" build.yaml
 
 echo "✅ Version updated to ${VERSION}"
 

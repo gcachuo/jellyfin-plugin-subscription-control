@@ -16,6 +16,13 @@ CHANGELOG="$1"
 # Leer la versión actual del package.sh
 VERSION=$(grep -oP 'VERSION="\K[^"]+' package.sh)
 
+# Leer targetAbi actual desde meta.json
+TARGET_ABI=$(grep -oP '"targetAbi"\s*:\s*"\K[^"]+' EasyMovie.Plugin/meta.json)
+if [ -z "$TARGET_ABI" ]; then
+    echo "❌ Error: No se pudo leer targetAbi desde EasyMovie.Plugin/meta.json"
+    exit 1
+fi
+
 if [ -z "$VERSION" ]; then
     echo "❌ Error: No se pudo leer la versión de package.sh"
     exit 1
@@ -34,6 +41,7 @@ fi
 
 echo "📦 Versión: $VERSION"
 echo "📝 Changelog: $CHANGELOG"
+echo "🎯 targetAbi: $TARGET_ABI"
 echo ""
 
 # Actualizar .csproj con la versión
@@ -49,6 +57,7 @@ echo "📝 Actualizando meta.json..."
 # Escapar caracteres especiales para JSON
 CHANGELOG_JSON=$(echo "$CHANGELOG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
 sed -i "s|\"changelog\": \".*\"|\"changelog\": \"🔄 Changes\\\\r\\\\n\\\\r\\\\n- ${CHANGELOG_JSON}\"|" EasyMovie.Plugin/meta.json
+sed -i "s|\"targetAbi\": \".*\"|\"targetAbi\": \"${TARGET_ABI}\"|" EasyMovie.Plugin/meta.json
 
 echo "✅ meta.json actualizado"
 
@@ -58,6 +67,7 @@ CHANGELOG_ENTRY="  ## ${VERSION%.*}\n  - ${CHANGELOG}\n  \n"
 
 # Insertar nuevo changelog después de "changelog: |-"
 sed -i "/^changelog: |-$/a\\${CHANGELOG_ENTRY}" build.yaml
+sed -i "s/targetAbi: '.*'/targetAbi: '${TARGET_ABI}'/" build.yaml
 
 echo "✅ build.yaml actualizado"
 echo ""
@@ -158,7 +168,7 @@ CHANGELOG_JSON=$(echo "$CHANGELOG" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
 cat > /tmp/new_version.json <<EOF
       {
         "timestamp": "${TIMESTAMP}",
-        "targetAbi": "10.11.6.0",
+        "targetAbi": "${TARGET_ABI}",
         "checksum": "${CHECKSUM}",
         "version": "${VERSION}",
         "changelog": "🔄 Changes\\r\\n\\r\\n- ${CHANGELOG_JSON}",
