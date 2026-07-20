@@ -9,6 +9,15 @@
     "repositoryUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control",
     "versions": [
       {
+        "timestamp": "2026-07-20T19:19:30.000Z",
+        "targetAbi": "10.11.11.0",
+        "checksum": "C2086E8F9CA4A55CC01AF50BB84E036C",
+        "version": "1.0.12.3",
+        "changelog": "🔄 Changes\r\n\r\n- Fix release checksum handling",
+        "dependencies": [],
+        "sourceUrl": "https://github.com/gcachuo/jellyfin-plugin-subscription-control/releases/download/v1.0.12.3/EasyMovie.Plugin-1.0.12.3.zip"
+      },
+      {
         "timestamp": "2026-07-20T19:16:26.000Z",
         "targetAbi": "10.11.11.0",
         "checksum": "B4F06B1785EAD8DAAFC6303D8BDD4954",
