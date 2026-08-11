@@ -1,6 +1,6 @@
 {
   "category": "General",
-  "changelog": "🔄 Changes\r\n\r\n- Fix release checksum handling",
+  "changelog": "🔄 Changes\r\n\r\n- Remove whitelist-based preroll strategy. Use capability-based overlay detection. Fix trial video priority over expiring.",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",

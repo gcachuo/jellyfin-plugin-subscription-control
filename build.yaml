@@ -12,6 +12,10 @@ category: 'General'
 artifacts:
   - 'EasyMovie.Plugin.dll'
 changelog: |-
+  ## 1.0.13
+  - Remove whitelist-based preroll strategy. Use capability-based overlay detection. Fix trial video priority over expiring.
+  
+
   ## 1.0.12
   - Fix release checksum handling
   
