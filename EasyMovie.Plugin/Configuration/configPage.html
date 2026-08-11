@@ -55,6 +55,24 @@
                         <input type="text" id="videoCourtesy" is="emby-input" />
                         <div class="fieldDescription">Ruta absoluta al video para usuarios con acceso de cortesia</div>
                     </div>
+                    <h2>Estrategia de Preroll</h2>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input type="checkbox" id="enableWebOverlay" is="emby-checkbox" />
+                            <span>Habilitar overlay web</span>
+                        </label>
+                        <div class="fieldDescription">Requiere una integración de inyección web compatible.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="webOverlayClientNames">Clientes para overlay web</label>
+                        <input type="text" id="webOverlayClientNames" is="emby-input" />
+                        <div class="fieldDescription">Nombres de cliente separados por comas. Predeterminado: Jellyfin Web.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="nativePrerollClientNames">Clientes para preroll nativo</label>
+                        <input type="text" id="nativePrerollClientNames" is="emby-input" />
+                        <div class="fieldDescription">Nombres de cliente separados por comas y previamente validados. Los demás omiten el intro.</div>
+                    </div>
                     <div class="inputContainer">
                         <button id="saveConfigButton" is="emby-button" type="submit" class="raised button-submit block emby-button">
                             <span>Guardar</span>
@@ -97,6 +115,9 @@
                 document.getElementById('videoExpiring').value = config.Videos?.Expiring || '';
                 document.getElementById('videoExpired').value = config.Videos?.Expired || '';
                 document.getElementById('videoCourtesy').value = config.Videos?.Courtesy || '';
+                document.getElementById('enableWebOverlay').checked = config.EnableWebOverlay === true;
+                document.getElementById('webOverlayClientNames').value = (config.WebOverlayClientNames || ['Jellyfin Web']).join(', ');
+                document.getElementById('nativePrerollClientNames').value = (config.NativePrerollClientNames || []).join(', ');
                 Dashboard.hideLoadingMsg();
             }).catch(err => {
                 Dashboard.hideLoadingMsg();
@@ -273,6 +294,13 @@
             });
         }
 
+        function parseClientNames(elementId) {
+            return document.getElementById(elementId).value
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean);
+        }
+
         function saveConfig(event) {
             if (event) {
                 event.preventDefault();
@@ -294,6 +322,9 @@
                 config.Videos.Expiring = document.getElementById('videoExpiring').value.trim();
                 config.Videos.Expired = document.getElementById('videoExpired').value.trim();
                 config.Videos.Courtesy = document.getElementById('videoCourtesy').value.trim();
+                config.EnableWebOverlay = document.getElementById('enableWebOverlay').checked;
+                config.WebOverlayClientNames = parseClientNames('webOverlayClientNames');
+                config.NativePrerollClientNames = parseClientNames('nativePrerollClientNames');
 
                 return ApiClient.updatePluginConfiguration(pluginId, config);
             }).then(result => {

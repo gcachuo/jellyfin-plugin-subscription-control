@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Configuration;
+using EasyMovie.Plugin.Playback;
 using Jellyfin.Database.Implementations.Entities;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace EasyMovie.Plugin.Providers;
@@ -16,15 +18,21 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
 {
     private readonly SubscriptionClient _subscriptionClient;
     private readonly ILibraryManager _libraryManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly PrerollStrategyResolver _prerollStrategyResolver;
     private readonly ILogger<SubscriptionIntroProvider> _logger;
 
     public SubscriptionIntroProvider(
         SubscriptionClient subscriptionClient,
         ILibraryManager libraryManager,
+        IHttpContextAccessor httpContextAccessor,
+        PrerollStrategyResolver prerollStrategyResolver,
         ILoggerFactory loggerFactory)
     {
         _subscriptionClient = subscriptionClient;
         _libraryManager = libraryManager;
+        _httpContextAccessor = httpContextAccessor;
+        _prerollStrategyResolver = prerollStrategyResolver;
         _logger = loggerFactory.CreateLogger<SubscriptionIntroProvider>();
     }
 
@@ -38,6 +46,18 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
         if (config is null)
         {
             _logger.LogWarning("EasyMovie: Plugin configuration is null");
+            return Enumerable.Empty<IntroInfo>();
+        }
+
+        var clientName = _httpContextAccessor.HttpContext?.Request.Headers["X-Emby-Client"].ToString();
+        var strategy = _prerollStrategyResolver.Resolve(config, clientName);
+        if (strategy != PrerollStrategy.NativeIntro)
+        {
+            _logger.LogInformation(
+                "EasyMovie: Skipping native preroll for item {ItemName}; strategy {Strategy}, client {ClientName}",
+                item.Name,
+                strategy,
+                string.IsNullOrWhiteSpace(clientName) ? "unknown" : clientName);
             return Enumerable.Empty<IntroInfo>();
         }
 
