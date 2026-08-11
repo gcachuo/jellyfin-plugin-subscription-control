@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EasyMovie.Plugin.Api;
 using EasyMovie.Plugin.Configuration;
-using EasyMovie.Plugin.Playback;
 using FluentAssertions;
 using Jellyfin.Database.Implementations.Entities;
 using MediaBrowser.Controller.Entities;
@@ -30,20 +29,16 @@ public class EasyMoviePrerollControllerTests
     }
 
     [Fact]
-    public async Task GetDecision_NonOverlayClient_ReturnsNone()
+    public async Task GetDecision_MissingItem_ReturnsNone()
     {
         var userId = Guid.NewGuid();
-        var user = new User("test", "Test", "User");
-        var libraryManager = new Mock<ILibraryManager>();
-        libraryManager.Setup(manager => manager.GetItemById(It.IsAny<Guid>()))
-            .Returns(new Video { Id = Guid.NewGuid(), Path = "/media/movie.mp4" });
         var userManager = new Mock<IUserManager>();
-        userManager.Setup(manager => manager.GetUserById(userId)).Returns(user);
+        userManager.Setup(manager => manager.GetUserById(userId)).Returns(new User("test", "Test", "User"));
         var controller = CreateController(
-            new PluginConfiguration { EnableWebOverlay = true },
+            new PluginConfiguration(),
             userManager,
-            libraryManager,
-            CreateUser(userId, "Jellyfin Android TV"));
+            new Mock<ILibraryManager>(),
+            CreateUser(userId));
 
         var result = await controller.GetDecision(Guid.NewGuid(), CancellationToken.None);
 
@@ -62,10 +57,10 @@ public class EasyMoviePrerollControllerTests
         libraryManager.Setup(manager => manager.GetItemById(It.IsAny<Guid>()))
             .Returns(new Video { Id = Guid.NewGuid(), Path = "/media/intro.mp4" });
         var controller = CreateController(
-            new PluginConfiguration { EnableWebOverlay = true, Videos = new PluginConfiguration.VideoPaths { Active = "/media/intro.mp4" } },
+            new PluginConfiguration { Videos = new PluginConfiguration.VideoPaths { Active = "/media/intro.mp4" } },
             userManager,
             libraryManager,
-            CreateUser(userId, "Jellyfin Web"));
+            CreateUser(userId));
 
         var result = await controller.GetDecision(Guid.NewGuid(), CancellationToken.None);
 
@@ -87,19 +82,17 @@ public class EasyMoviePrerollControllerTests
             userManager?.Object ?? new Mock<IUserManager>().Object,
             libraryManager?.Object ?? new Mock<ILibraryManager>().Object,
             configurationProvider.Object,
-            new PrerollStrategyResolver(),
             new Mock<ILogger<EasyMoviePrerollController>>().Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext { User = user ?? new ClaimsPrincipal() } }
         };
     }
 
-    private static ClaimsPrincipal CreateUser(Guid userId, string clientName)
+    private static ClaimsPrincipal CreateUser(Guid userId)
     {
         return new ClaimsPrincipal(new ClaimsIdentity(
         [
-            new Claim("Jellyfin-UserId", userId.ToString()),
-            new Claim("Jellyfin-Client", clientName)
+            new Claim("Jellyfin-UserId", userId.ToString())
         ], "test"));
     }
 }

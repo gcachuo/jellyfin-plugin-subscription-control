@@ -23,7 +23,6 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
         services.AddSingleton<SubscriptionClient>();
         services.AddSingleton<UserPolicyService>();
         services.AddSingleton<IPrerollConfigurationProvider, PrerollConfigurationProvider>();
-        services.AddSingleton<PrerollStrategyResolver>();
         services.AddSingleton<IIntroProvider, SubscriptionIntroProvider>();
         services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, SubscriptionCacheResetTask>();
         services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, AutoEnableExpiredUsersTask>();

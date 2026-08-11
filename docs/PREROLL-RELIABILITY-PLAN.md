@@ -89,3 +89,41 @@ Pruebas manuales de regresión:
 - El bundle de Jellyfin Web declara `ApiClient.getIntros(itemId)`, `ApiClient.getUrl(...)` y `ApiClient.accessToken()`. El overlay usa estas APIs para consultar la decisión del servidor y reproducir el intro sin cambiar la fuente ni la cola del contenido principal.
 - El servidor Jellyfin 10.11.11 usa los claims `Jellyfin-UserId` y `Jellyfin-Client`, y resuelve los `IntroInfo.ItemId` devueltos por proveedores a items `Video` antes de responder al cliente.
 - `Jellyfin Web` es el identificador para el overlay. Incluye navegador, Android Phone y WebOS cuando usan el cliente web. Android TV se identifica como `Jellyfin Android TV` y Roku debe añadirse sólo después de confirmar su `ClientName` real en los logs.
+
+## Máquina de Estados de Preroll
+
+```mermaid
+stateDiagram-v2
+    [*] --> SolicitudDeReproduccion
+    SolicitudDeReproduccion --> BloqueoExpirado: Suscripción expirada
+    BloqueoExpirado --> VideoExpirado
+    VideoExpirado --> [*]
+
+    SolicitudDeReproduccion --> ResolverEstrategia: Suscripción válida
+    ResolverEstrategia --> OverlayWeb: Cliente Jellyfin Web y overlay habilitado
+    ResolverEstrategia --> PrerollNativo: Cliente en allowlist nativa
+    ResolverEstrategia --> ContenidoPrincipal: Cliente desconocido o incompatible
+
+    OverlayWeb --> SeleccionarVideo
+    PrerollNativo --> SeleccionarVideo
+
+    SeleccionarVideo --> VideoCortesia: Cortesía
+    SeleccionarVideo --> VideoTrial: Trial y video trial configurado
+    SeleccionarVideo --> VideoExpiring: Trial sin video trial
+    SeleccionarVideo --> VideoExpiring: Próximo a expirar
+    SeleccionarVideo --> VideoActivo: Suscripción activa
+
+    VideoCortesia --> ReproducirOverlay: Estrategia overlay
+    VideoTrial --> ReproducirOverlay: Estrategia overlay
+    VideoExpiring --> ReproducirOverlay: Estrategia overlay
+    VideoActivo --> ReproducirOverlay: Estrategia overlay
+
+    VideoCortesia --> EntregarIntroNativo: Estrategia nativa
+    VideoTrial --> EntregarIntroNativo: Estrategia nativa
+    VideoExpiring --> EntregarIntroNativo: Estrategia nativa
+    VideoActivo --> EntregarIntroNativo: Estrategia nativa
+
+    ReproducirOverlay --> ContenidoPrincipal: Finaliza, se omite, falla o expira timeout
+    EntregarIntroNativo --> ContenidoPrincipal: Cliente completa el intro
+    ContenidoPrincipal --> [*]
+```

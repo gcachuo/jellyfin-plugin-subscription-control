@@ -23,7 +23,6 @@ public sealed class EasyMoviePrerollController : ControllerBase
     private readonly IUserManager _userManager;
     private readonly ILibraryManager _libraryManager;
     private readonly IPrerollConfigurationProvider _configurationProvider;
-    private readonly PrerollStrategyResolver _prerollStrategyResolver;
     private readonly ILogger<EasyMoviePrerollController> _logger;
 
     public EasyMoviePrerollController(
@@ -31,14 +30,12 @@ public sealed class EasyMoviePrerollController : ControllerBase
         IUserManager userManager,
         ILibraryManager libraryManager,
         IPrerollConfigurationProvider configurationProvider,
-        PrerollStrategyResolver prerollStrategyResolver,
         ILogger<EasyMoviePrerollController> logger)
     {
         _subscriptionClient = subscriptionClient;
         _userManager = userManager;
         _libraryManager = libraryManager;
         _configurationProvider = configurationProvider;
-        _prerollStrategyResolver = prerollStrategyResolver;
         _logger = logger;
     }
 
@@ -72,31 +69,32 @@ public sealed class EasyMoviePrerollController : ControllerBase
         var user = _userManager.GetUserById(userId);
         var config = _configurationProvider.GetConfiguration();
         var item = _libraryManager.GetItemById(itemId);
-        if (user is null || config is null || item is null || IsPluginVideo(item.Path, config))
+        if (user is null || config is null || item is null)
         {
+            _logger.LogInformation("Decision: none (user={User}, config={Config}, item={Item}) for {ItemId}", user?.Username, config is not null ? "ok" : "null", item?.Name, itemId);
             return Ok(PrerollDecisionDto.None);
         }
 
-        var clientName = User.FindFirst("Jellyfin-Client")?.Value;
-        if (_prerollStrategyResolver.Resolve(config, clientName) != PrerollStrategy.WebOverlay)
+        if (IsPluginVideo(item.Path, config))
         {
+            _logger.LogInformation("Decision: none (plugin video) for {ItemId}", itemId);
             return Ok(PrerollDecisionDto.None);
         }
 
         var status = await _subscriptionClient.GetStatusAsync(user, config, cancellationToken).ConfigureAwait(false);
         if (status.IsExpired)
         {
+            _logger.LogInformation("Decision: none (expired) for {ItemId}, user={User}", itemId, user.Username);
             return Ok(PrerollDecisionDto.None);
         }
 
-        var path = status.IsCourtesy
-            ? config.Videos.Courtesy
-            : status.IsExpiring
-                ? config.Videos.Expiring
-                : config.Videos.Active;
+        var path = new PrerollVideoSelector().Select(status, config.Videos);
         var introItem = string.IsNullOrWhiteSpace(path)
             ? null
             : GetOrCreateLibraryItem(path);
+
+        var strategy = introItem is null ? "none" : "overlay";
+        _logger.LogInformation("Decision: {Strategy} for {ItemId}, user={User}, introItemId={IntroItemId}", strategy, itemId, user.Username, introItem?.Id);
 
         return Ok(introItem is null
             ? PrerollDecisionDto.None
@@ -145,7 +143,8 @@ public sealed class EasyMoviePrerollController : ControllerBase
             && (string.Equals(path, config.Videos.Active, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(path, config.Videos.Expiring, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(path, config.Videos.Expired, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(path, config.Videos.Courtesy, StringComparison.OrdinalIgnoreCase));
+                || string.Equals(path, config.Videos.Courtesy, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(path, config.Videos.Trial, StringComparison.OrdinalIgnoreCase));
     }
 
     public sealed record PrerollDecisionDto(string Strategy, Guid? IntroItemId)

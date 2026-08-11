@@ -9,7 +9,6 @@ using EasyMovie.Plugin.Playback;
 using Jellyfin.Database.Implementations.Entities;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace EasyMovie.Plugin.Providers;
@@ -18,21 +17,15 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
 {
     private readonly SubscriptionClient _subscriptionClient;
     private readonly ILibraryManager _libraryManager;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly PrerollStrategyResolver _prerollStrategyResolver;
     private readonly ILogger<SubscriptionIntroProvider> _logger;
 
     public SubscriptionIntroProvider(
         SubscriptionClient subscriptionClient,
         ILibraryManager libraryManager,
-        IHttpContextAccessor httpContextAccessor,
-        PrerollStrategyResolver prerollStrategyResolver,
         ILoggerFactory loggerFactory)
     {
         _subscriptionClient = subscriptionClient;
         _libraryManager = libraryManager;
-        _httpContextAccessor = httpContextAccessor;
-        _prerollStrategyResolver = prerollStrategyResolver;
         _logger = loggerFactory.CreateLogger<SubscriptionIntroProvider>();
     }
 
@@ -41,23 +34,11 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
     public async Task<IEnumerable<IntroInfo>> GetIntros(BaseItem item, User user)
     {
         _logger.LogInformation("EasyMovie: GetIntros called for item {ItemName} by user {UserName}", item.Name, user.Username);
-        
+
         var config = Plugin.Instance?.Configuration;
         if (config is null)
         {
             _logger.LogWarning("EasyMovie: Plugin configuration is null");
-            return Enumerable.Empty<IntroInfo>();
-        }
-
-        var clientName = _httpContextAccessor.HttpContext?.Request.Headers["X-Emby-Client"].ToString();
-        var strategy = _prerollStrategyResolver.Resolve(config, clientName);
-        if (strategy != PrerollStrategy.NativeIntro)
-        {
-            _logger.LogInformation(
-                "EasyMovie: Skipping native preroll for item {ItemName}; strategy {Strategy}, client {ClientName}",
-                item.Name,
-                strategy,
-                string.IsNullOrWhiteSpace(clientName) ? "unknown" : clientName);
             return Enumerable.Empty<IntroInfo>();
         }
 
@@ -72,11 +53,7 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
             return Enumerable.Empty<IntroInfo>();
         }
 
-        var path = status.IsCourtesy
-            ? config.Videos.Courtesy
-            : status.IsExpiring
-                ? config.Videos.Expiring
-                : config.Videos.Active;
+        var path = new PrerollVideoSelector().Select(status, config.Videos);
 
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -157,6 +134,7 @@ public sealed class SubscriptionIntroProvider : IIntroProvider
         return string.Equals(path, config.Videos.Active, StringComparison.OrdinalIgnoreCase)
             || string.Equals(path, config.Videos.Expiring, StringComparison.OrdinalIgnoreCase)
             || string.Equals(path, config.Videos.Expired, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(path, config.Videos.Courtesy, StringComparison.OrdinalIgnoreCase);
+            || string.Equals(path, config.Videos.Courtesy, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(path, config.Videos.Trial, StringComparison.OrdinalIgnoreCase);
     }
 }

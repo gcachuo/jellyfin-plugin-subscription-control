@@ -10,9 +10,6 @@ public class PluginConfiguration : BasePluginConfiguration
     public int TrialMaxDurationDays { get; set; } = 14;
     public int CacheDurationMinutes { get; set; } = 10;
     public int ApiTimeoutSeconds { get; set; } = 30;
-    public bool EnableWebOverlay { get; set; }
-    public List<string> WebOverlayClientNames { get; set; } = ["Jellyfin Web"];
-    public List<string> NativePrerollClientNames { get; set; } = ["Jellyfin Android TV"];
     public VideoPaths Videos { get; set; } = new();
 
     public class VideoPaths
@@ -21,5 +18,6 @@ public class PluginConfiguration : BasePluginConfiguration
         public string Expiring { get; set; } = string.Empty;
         public string Expired { get; set; } = string.Empty;
         public string Courtesy { get; set; } = string.Empty;
+        public string Trial { get; set; } = string.Empty;
     }
 }

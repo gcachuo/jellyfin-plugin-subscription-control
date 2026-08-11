@@ -6,8 +6,8 @@
   "name": "EasyMovie Subscription",
   "owner": "gcachuo",
   "targetAbi": "10.11.11.0",
-  "timestamp": "2026-07-20T19:19:13.0000000Z",
-  "version": "1.0.12.3",
+  "timestamp": "2026-08-11T20:18:07.0000000Z",
+  "version": "1.0.13.3",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": []
