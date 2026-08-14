@@ -11,7 +11,7 @@ Este repositorio contiene un plugin de Jellyfin que consulta la API de suscripci
   - `Playback/`: decisión de prerolls e interceptación de reproducción.
   - `Providers/`: integración con `IIntroProvider`.
   - `Services/`: sincronización de políticas y compatibilidad con Jellyfin.
-  - `Tasks/`: tareas programadas de Jellyfin.
+  - `Tasks/`: tareas programadas de Jellyfin. Incluye `FixEndDateTask` (workaround para bug de Gelato #149: setea `EndDate=DateCreated` en items con `EndDate=NULL` para que no sean filtrados por `FilterUnreleased`).
   - `Web/`: integración JavaScript con Jellyfin Web.
 - `EasyMovie.Plugin.Tests/`: pruebas unitarias xUnit.
 - `EasyMovie.Plugin.IntegrationTests/`: pruebas de integración xUnit, WireMock, flujos y regresiones.

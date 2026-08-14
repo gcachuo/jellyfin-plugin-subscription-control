@@ -27,6 +27,7 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
         services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, SubscriptionCacheResetTask>();
         services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, AutoEnableExpiredUsersTask>();
         services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, LibraryAccessSyncTask>();
+        services.AddSingleton<MediaBrowser.Model.Tasks.IScheduledTask, FixEndDateTask>();
         services.AddHostedService<PlaybackInterceptor>();
         services.AddHostedService<JavaScriptInjectorRegistrationService>();
         Console.WriteLine("EasyMovie: Plugin services registered successfully");

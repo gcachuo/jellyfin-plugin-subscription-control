@@ -1,13 +1,13 @@
 {
   "category": "General",
-  "changelog": "🔄 Changes\r\n\r\n- Add resilient preroll playback strategies. Remove whitelist-based preroll strategy, use capability-based overlay detection. Fix trial video overriding expiring video priority.",
+  "changelog": "🔄 Changes\r\n\r\n- Add FixEndDate scheduled task: sets EndDate=DateCreated for items with EndDate=NULL. Workaround for Gelato FilterUnreleased bug (#149) that hides items with NULL EndDate from all libraries.",
   "description": "Integrates EasyMovie subscription status with Jellyfin playback. Controls media access based on user subscription status and displays subscription-specific preroll videos before content.",
   "guid": "a7a4d4ad-6d45-4dc9-9f5e-8d0a3b4bb21a",
   "name": "EasyMovie Subscription",
   "owner": "gcachuo",
   "targetAbi": "10.11.11.0",
-  "timestamp": "2026-08-11T22:53:50.0000000Z",
-  "version": "1.0.13.4",
+  "timestamp": "2026-08-15T03:20:00.0000000Z",
+  "version": "1.0.13.5",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": []
